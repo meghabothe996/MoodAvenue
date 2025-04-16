@@ -1,10 +1,10 @@
-import { ChakraProvider, Box, Container, Button, VStack, HStack, Heading, Text, useDisclosure, Flex, useColorMode, Icon, SimpleGrid, Circle, useColorModeValue, useBreakpointValue, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, FormControl, FormLabel, Input, InputGroup, InputRightElement, Image, Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, IconButton, Tag, TagLeftIcon, TagLabel, Switch, Badge } from '@chakra-ui/react'
+import { ChakraProvider, Box, Container, Button, VStack, HStack, Heading, Text, useDisclosure, Flex, useColorMode, Icon, SimpleGrid, Circle, useColorModeValue, useBreakpointValue, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, FormControl, FormLabel, Input, InputGroup, InputRightElement, Image, Accordion, AccordionItem, AccordionButton, AccordionIcon, AccordionPanel, IconButton, Tag, TagLeftIcon, TagLabel, Switch, Badge, Collapse, Stack, Divider } from '@chakra-ui/react'
 import { useState, useEffect } from 'react'
 import theme, { getThemeByVariant } from './theme'
 import ThemeSelector from './components/ThemeSelector'
 import { ThemeVariantProvider, useThemeVariant } from './context/ThemeContext'
 import { extendTheme } from '@chakra-ui/react'
-import { FaComments, FaUsers, FaImages, FaBell, FaPalette, FaUserPlus, FaComment, FaMagic, FaMoon, FaSun, FaCode, FaGamepad, FaTwitter, FaGithub, FaLinkedin, FaInstagram, FaPlay, FaQuoteLeft, FaHeadset, FaGlobe, FaBars, FaArrowRight, FaCheck, FaTimes, FaEye, FaEyeSlash } from 'react-icons/fa'
+import { FaComments, FaUsers, FaImages, FaBell, FaPalette, FaUserPlus, FaComment, FaMagic, FaMoon, FaSun, FaCode, FaGamepad, FaTwitter, FaGithub, FaLinkedin, FaInstagram, FaPlay, FaQuoteLeft, FaHeadset, FaGlobe, FaBars, FaArrowRight, FaCheck, FaTimes, FaEye, FaEyeSlash, FaSignInAlt, FaBars as FaHamburger, FaTimes as FaClose } from 'react-icons/fa'
 import { HiLightningBolt } from 'react-icons/hi'
 import { motion, AnimatePresence } from 'framer-motion'
 import './App.css'
@@ -74,6 +74,10 @@ function SimpleLanding({ onStartClick }) {
 
   // Add pricing interval state
   const [pricingInterval, setPricingInterval] = useState('monthly');
+
+  // Add mobile menu state
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { isOpen, onToggle } = useDisclosure();
 
   // Show guide popup on every page load/refresh
   useEffect(() => {
@@ -315,7 +319,7 @@ function SimpleLanding({ onStartClick }) {
           top={0}
           left={0}
           right={0}
-          px={{ base: 4, lg: 2 }}
+          px={{ base: 4, lg: 6 }}
           py={4}
           bg={isDark ? 'rgba(26, 27, 30, 0.8)' : 'rgba(255, 255, 255, 0.8)'}
           backdropFilter="blur(10px)"
@@ -323,7 +327,7 @@ function SimpleLanding({ onStartClick }) {
           borderColor={isDark ? "rgba(255,255,255,0.1)" : "gray.200"}
           zIndex={1000}
         >
-          <Heading as="h1" size="lg">
+          <Heading as="h1" size="lg" zIndex={2}>
             <Text 
               as="span" 
               bgGradient={`linear(to-r, ${isDark ? 'primary.300' : 'primary.500'}, ${isDark ? 'secondary.300' : 'secondary.500'})`}
@@ -333,7 +337,9 @@ function SimpleLanding({ onStartClick }) {
               MoodAvenue
             </Text>
           </Heading>
-          <HStack spacing={3}>
+          
+          {/* Desktop Menu */}
+          <HStack spacing={3} display={{ base: 'none', md: 'flex' }}>
             <ThemeSelector className="theme-selector" />
             <Box borderLeft="1px" borderColor={isDark ? "rgba(255,255,255,0.1)" : "gray.200"} h="24px" mx={2} />
             <IconButton
@@ -364,10 +370,79 @@ function SimpleLanding({ onStartClick }) {
               Sign Up
             </Button>
           </HStack>
+          
+          {/* Mobile Menu Button */}
+          <IconButton
+            display={{ base: 'flex', md: 'none' }}
+            onClick={onToggle}
+            icon={isOpen ? <FaClose /> : <FaHamburger />}
+            variant="ghost"
+            aria-label="Toggle Navigation"
+            color={textColor}
+          />
         </Flex>
+        
+        {/* Mobile Menu Dropdown */}
+        <Collapse in={isOpen} animateOpacity>
+          <Box
+            display={{ base: 'block', md: 'none' }}
+            position="fixed"
+            top="73px"
+            left={0}
+            right={0}
+            zIndex={999}
+            bg={isDark ? 'rgba(26, 27, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)'}
+            backdropFilter="blur(10px)"
+            px={4}
+            py={4}
+            borderBottom="1px"
+            borderColor={isDark ? "rgba(255,255,255,0.1)" : "gray.200"}
+            shadow="md"
+          >
+            <Stack spacing={4}>
+              <Flex align="center" justify="space-between">
+                <Text fontWeight="medium">Theme Options</Text>
+                <ThemeSelector className="theme-selector-mobile" />
+              </Flex>
+              <Flex align="center" justify="space-between">
+                <Text fontWeight="medium">{isDark ? 'Light Mode' : 'Dark Mode'}</Text>
+                <Switch 
+                  isChecked={isDark}
+                  onChange={toggleColorMode}
+                  colorScheme="primary"
+                />
+              </Flex>
+              <Divider />
+              <Button
+                w="full"
+                variant="ghost"
+                onClick={() => {
+                  setIsSignInOpen(true);
+                  onToggle();
+                }}
+                justifyContent="flex-start"
+                leftIcon={<FaSignInAlt />}
+              >
+                Sign In
+              </Button>
+              <Button
+                w="full"
+                colorScheme="primary"
+                onClick={() => {
+                  setIsSignUpOpen(true);
+                  onToggle();
+                }}
+                justifyContent="flex-start"
+                leftIcon={<FaUserPlus />}
+              >
+                Sign Up
+              </Button>
+            </Stack>
+          </Box>
+        </Collapse>
 
         {/* Main Content - Add top margin to account for fixed navbar */}
-        <Box mt="100px" px={{ base: 4, lg: 20 }}>
+        <Box mt={{ base: "80px", md: "100px" }} px={{ base: 4, lg: 20 }}>
           {/* Hero Section */}
           <Flex 
             direction={{ base: 'column', lg: 'row' }} 
