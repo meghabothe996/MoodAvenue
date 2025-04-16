@@ -2,7 +2,7 @@
 
 <div align="center">
   
-  ![MoodAvenue](src\assets\readme.jpg)
+  ![MoodAvenue](src/assets/readme.jpg)
   
   ### 🌈 Express Yourself. Connect Authentically. Explore Boundlessly. 🌈
   
