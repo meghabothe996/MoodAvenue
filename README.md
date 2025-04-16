@@ -1,4 +1,6 @@
-# ✨ MoodAvenue - Next-Gen Social Experience ✨
+<div align="center>
+✨ MoodAvenue - Next-Gen Social Experience ✨
+</div>
 
 <div align="center">
   
@@ -152,7 +154,7 @@ The MoodAvenue journey continues with planned enhancements:
   
   ### 💖 Join the MoodAvenue revolution and redefine your social experience! 💖
   
-  [Website](https://mood-avenue.vercel.app/) 
+  [Website: Live Demo](https://mood-avenue.vercel.app/) 
   
   <p>
     <em>Created with ❤️ for the Outlier Frontend UI Development Hackathon (April 2025)</em>
