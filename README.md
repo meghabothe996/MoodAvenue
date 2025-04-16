@@ -1,5 +1,5 @@
 <div align="center>
-✨ MoodAvenue - Next-Gen Social Experience ✨
+<p>✨ MoodAvenue - Next-Gen Social Experience ✨</P>
 </div>
 
 <div align="center">
