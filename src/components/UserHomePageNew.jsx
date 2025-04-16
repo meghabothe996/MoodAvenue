@@ -58,7 +58,10 @@ import {
   AlertDialogHeader,
   AlertDialogContent,
   AlertDialogOverlay,
-  Progress
+  Progress,
+  useTheme,
+  Tag,
+  CircularProgress
 } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -134,2002 +137,37 @@ import {
   FaBolt,
   FaDatabase,
   FaRegChartBar,
-  FaShare
+  FaShare,
+  FaPhoneAlt
 } from 'react-icons/fa';
 import ThemeSelector from './ThemeSelector';
 import { useThemeVariant } from '../context/ThemeContext';
+import userProfilePicture from '../assets/userprofilepicture.jpg';
+import ExploreSection from './UserHome/ExploreSection';
 
-// Dummy data for posts - updated with diverse media types
-const dummyPosts = [
-  {
-    id: 1,
-    type: 'image',
-    user: {
-      name: 'Alex Johnson',
-      username: 'alexj',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-      verified: true,
-    },
-    content: 'Just launched our new product! Check it out and let me know what you think. #innovation #tech',
-    media: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1744&q=80',
-    time: '2h',
-    likes: 1204,
-    comments: 89,
-    shares: 124,
-  },
-  {
-    id: 2,
-    type: 'text',
-    user: {
-      name: 'Emily Chen',
-      username: 'emilyc',
-      avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
-      verified: true,
-    },
-    content: 'Had an amazing time at the conference today. Met so many inspiring people! 🚀 Sometimes the simplest ideas lead to the biggest breakthroughs. Excited to implement what I learned today.',
-    time: '4h',
-    likes: 843,
-    comments: 35,
-    shares: 56,
-  },
-  {
-    id: 3,
-    type: 'video',
-    user: {
-      name: 'Tech Insights',
-      username: 'techinsights',
-      avatar: 'https://randomuser.me/api/portraits/men/22.jpg',
-      verified: true,
-    },
-    content: 'Breaking: New AI model can generate code with 95% accuracy. This could revolutionize how we build software.',
-    media: 'https://player.vimeo.com/video/235215203',
-    thumbnail: 'https://images.unsplash.com/photo-1677442135148-1456f0ba5617?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80',
-    duration: '3:45',
-    time: '6h',
-    likes: 3542,
-    comments: 267,
-    shares: 1298,
-  },
-  {
-    id: 4,
-    type: 'gallery',
-    user: {
-      name: 'Sophia Williams',
-      username: 'sophiaw',
-      avatar: 'https://randomuser.me/api/portraits/women/9.jpg',
-      verified: false,
-    },
-    content: 'Snapshots from our company retreat. Amazing team building activities and beautiful location!',
-    media: [
-      'https://images.unsplash.com/photo-1517048676732-d65bc937f952?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-      'https://images.unsplash.com/photo-1539635278303-d4002c07eae3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-      'https://images.unsplash.com/photo-1565944699718-19901001e846?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1738&q=80'
-    ],
-    time: '1d',
-    likes: 567,
-    comments: 42,
-    shares: 21,
-  },
-  {
-    id: 5,
-    type: 'audio',
-    user: {
-      name: 'Music Producers Guild',
-      username: 'mpguild',
-      avatar: 'https://i.pravatar.cc/150?img=11',
-      verified: true,
-    },
-    content: 'Check out this amazing track from our featured artist this week!',
-    media: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    duration: '2:38',
-    visualizer: true,
-    time: '10h',
-    likes: 2104,
-    comments: 149,
-    shares: 624,
-  },
-  {
-    id: 6,
-    type: 'short',
-    user: {
-      name: 'Travel Enthusiast',
-      username: 'traveler',
-      avatar: 'https://i.pravatar.cc/150?img=12',
-      verified: true,
-    },
-    content: 'The beauty of nature never ceases to amaze. Captured this sunset at Lake Tahoe.',
-    media: 'https://player.vimeo.com/video/559163669?h=78e7685dd2&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/500x300?sunset',
-    duration: '0:15',
-    time: '12h',
-    likes: 5204,
-    comments: 189,
-    shares: 1024,
-  },
-  {
-    id: 7,
-    type: 'note',
-    user: {
-      name: 'Daily Thoughts',
-      username: 'thoughts',
-      avatar: 'https://i.pravatar.cc/150?img=20',
-      verified: false,
-    },
-    content: '🌟 Daily Reflection 🌟\n\nThree things I am grateful for today:\n1. The support of my amazing friends\n2. The opportunity to learn something new\n3. A warm cup of coffee to start the day\n\nWhat are you grateful for?',
-    background: 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)',
-    textColor: 'dark',
-    time: '15h',
-    likes: 1432,
-    comments: 215,
-    shares: 324,
-  }
-];
-
-// Dummy data for trending topics
-const trendingTopics = [
-  { id: 1, topic: 'Technology', posts: '125K' },
-  { id: 2, topic: '#ArtificialIntelligence', posts: '98K' },
-  { id: 3, topic: 'SpaceX', posts: '82K' },
-  { id: 4, topic: '#WebDevelopment', posts: '67K' },
-  { id: 5, topic: 'Climate Change', posts: '54K' },
-];
-
-// Dummy data for who to follow
-const whoToFollow = [
-  { id: 1, name: 'TechCrunch', username: 'techcrunch', avatar: 'https://i.pravatar.cc/150?img=50' },
-  { id: 2, name: 'NASA', username: 'nasa', avatar: 'https://i.pravatar.cc/150?img=51' },
-  { id: 3, name: 'Design Weekly', username: 'designweekly', avatar: 'https://i.pravatar.cc/150?img=52' },
-];
-
-// Dummy data for communities
-const communities = [
-  { id: 1, name: 'React Developers', members: '125K', avatar: 'https://i.pravatar.cc/150?img=60' },
-  { id: 2, name: 'UX/UI Designers', members: '89K', avatar: 'https://i.pravatar.cc/150?img=61' },
-  { id: 3, name: 'Data Scientists', members: '76K', avatar: 'https://i.pravatar.cc/150?img=62' },
-];
-
-// Dummy data for chats (personal, groups, communities)
-const chats = [
-  // Personal chats
-  {
-    id: 'p1',
-    type: 'personal',
-    name: 'Sarah Johnson',
-    avatar: 'https://i.pravatar.cc/150?img=25',
-    status: 'online',
-    unreadCount: 3,
-    lastMessage: {
-      content: 'Did you see the latest design I sent you?',
-      time: '10:42 AM',
-      sender: 'Sarah Johnson',
-      isRead: false
-    },
-    messages: [
-      {
-        id: 'msg1',
-        content: 'Hey, how are you doing?',
-        time: '10:30 AM',
-        sender: 'Sarah Johnson',
-        isRead: true
-      },
-      {
-        id: 'msg2',
-        content: 'I am good! Working on that new project we discussed.',
-        time: '10:32 AM',
-        sender: 'me',
-        isRead: true
-      },
-      {
-        id: 'msg3',
-        content: 'That sounds great! Any progress to share?',
-        time: '10:35 AM',
-        sender: 'Sarah Johnson',
-        isRead: true
-      },
-      {
-        id: 'msg4',
-        content: 'Yes, I have finished the initial wireframes. I will send them over soon.',
-        time: '10:38 AM',
-        sender: 'me',
-        isRead: true
-      },
-      {
-        id: 'msg5',
-        content: 'Did you see the latest design I sent you?',
-        time: '10:42 AM',
-        sender: 'Sarah Johnson',
-        isRead: false
-      }
-    ]
-  },
-  {
-    id: 'p2',
-    type: 'personal',
-    name: 'James Wilson',
-    avatar: 'https://i.pravatar.cc/150?img=32',
-    status: 'offline',
-    lastActive: '2h ago',
-    unreadCount: 0,
-    lastMessage: {
-      content: 'Lets meet up for coffee tomorrow',
-      time: 'Yesterday',
-      sender: 'me',
-      isRead: true
-    },
-    messages: [
-      {
-        id: 'msg1',
-        content: 'Hey James, are you free this weekend?',
-        time: 'Yesterday',
-        sender: 'me',
-        isRead: true
-      },
-      {
-        id: 'msg2',
-        content: 'I should be! What did you have in mind?',
-        time: 'Yesterday',
-        sender: 'James Wilson',
-        isRead: true
-      },
-      {
-        id: 'msg3',
-        content: 'Lets meet up for coffee tomorrow',
-        time: 'Yesterday',
-        sender: 'me',
-        isRead: true
-      }
-    ]
-  },
-  // Group chats
-  {
-    id: 'g1',
-    type: 'group',
-    name: 'Project Alpha Team',
-    avatar: 'https://i.pravatar.cc/150?img=55',
-    members: ['You', 'Sarah Johnson', 'James Wilson', 'Ava Martinez', 'Noah Thompson'],
-    unreadCount: 12,
-    lastMessage: {
-      content: 'The deadline has been extended to next Friday.',
-      time: '2:15 PM',
-      sender: 'Ava Martinez',
-      isRead: false
-    },
-    messages: [
-      {
-        id: 'msg1',
-        content: 'Team, lets discuss the latest requirements changes',
-        time: '2:05 PM',
-        sender: 'Noah Thompson',
-        isRead: true
-      },
-      {
-        id: 'msg2',
-        content: 'I am concerned about meeting the deadline with these new changes.',
-        time: '2:08 PM',
-        sender: 'Sarah Johnson',
-        isRead: true
-      },
-      {
-        id: 'msg3',
-        content: 'Has anyone spoken to the client about this?',
-        time: '2:10 PM',
-        sender: 'me',
-        isRead: true
-      },
-      {
-        id: 'msg4',
-        content: 'I had a call with them this morning.',
-        time: '2:12 PM',
-        sender: 'Ava Martinez',
-        isRead: false
-      },
-      {
-        id: 'msg5',
-        content: 'The deadline has been extended to next Friday.',
-        time: '2:15 PM',
-        sender: 'Ava Martinez',
-        isRead: false
-      }
-    ]
-  },
-  // Communities
-  {
-    id: 'c1',
-    type: 'community',
-    name: 'React Developers',
-    avatar: 'https://i.pravatar.cc/150?img=60',
-    members: '125K',
-    unreadCount: 5,
-    lastMessage: {
-      content: 'Has anyone tried the new React 19 alpha yet?',
-      time: '11:30 AM',
-      sender: 'Joshua Matthews',
-      isRead: false
-    },
-    messages: [
-      {
-        id: 'msg1',
-        content: 'React 19 alpha is now available for testing!',
-        time: '11:20 AM',
-        sender: 'Admin',
-        isRead: true
-      },
-      {
-        id: 'msg2',
-        content: 'What are the key new features?',
-        time: '11:22 AM',
-        sender: 'Emma Davis',
-        isRead: true
-      },
-      {
-        id: 'msg3',
-        content: 'The documentation mentions improved server components and a new caching layer.',
-        time: '11:25 AM',
-        sender: 'Ryan Jackson',
-        isRead: true
-      },
-      {
-        id: 'msg4',
-        content: 'Has anyone tried the new React 19 alpha yet?',
-        time: '11:30 AM',
-        sender: 'Joshua Matthews',
-        isRead: false
-      }
-    ]
-  }
-];
-
-// Dummy data for explore page
-const exploreCategories = [
-  { id: 'trending', name: 'Trending', icon: FaChartBar },
-  { id: 'tech', name: 'Technology', icon: FaRocket },
-  { id: 'arts', name: 'Arts & Culture', icon: FaPalette },
-  { id: 'health', name: 'Health & Fitness', icon: FaHeartbeat },
-  { id: 'music', name: 'Music', icon: FaMusic },
-  { id: 'gaming', name: 'Gaming', icon: FaGamepad },
-  { id: 'science', name: 'Science', icon: FaFlask },
-  { id: 'food', name: 'Food & Cooking', icon: FaUtensils },
-];
-
-const explorePosts = [
-  {
-    id: 'e1',
-    type: 'image',
-    category: 'technology',
-    user: {
-      name: 'Tech Insider',
-      username: 'techinsider',
-      avatar: 'https://randomuser.me/api/portraits/men/68.jpg',
-      verified: true,
-    },
-    content: 'The future of augmented reality is here. This new AR headset weighs only 120g and provides 8K resolution per eye.',
-    media: 'https://images.unsplash.com/photo-1525598912003-663126343e1f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-    time: '3h',
-    likes: 3284,
-    comments: 341,
-    shares: 892,
-    trending: true,
-  },
-  {
-    id: 'e2',
-    type: 'video',
-    category: 'music',
-    user: {
-      name: 'Music Daily',
-      username: 'musicdaily',
-      avatar: 'https://randomuser.me/api/portraits/women/36.jpg',
-      verified: true,
-    },
-    content: 'This acoustic cover of the latest hit song has gone viral! The artist recorded it in one take.',
-    media: 'https://player.vimeo.com/video/219350821',
-    thumbnail: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-    duration: '4:26',
-    time: '6h',
-    likes: 15732,
-    comments: 2105,
-    shares: 5238,
-    trending: true,
-  },
-  {
-    id: 'e3',
-    type: 'gallery',
-    category: 'travel',
-    user: {
-      name: 'Travel Enthusiast',
-      username: 'traveler',
-      avatar: 'https://randomuser.me/api/portraits/women/12.jpg',
-      verified: true,
-    },
-    content: 'Exploring the hidden gems of Bali. These spots are off the beaten path but absolutely worth the visit!',
-    media: [
-      'https://images.unsplash.com/photo-1537996194471-e657df975ab4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1738&q=80',
-      'https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-      'https://images.unsplash.com/photo-1539367628448-4bc5c9d171c8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-      'https://images.unsplash.com/photo-1535827841776-24afc1e255ac?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1742&q=80'
-    ],
-    time: '8h',
-    likes: 8921,
-    comments: 432,
-    shares: 1234,
-    trending: true,
-  },
-  {
-    id: 'e4',
-    type: 'short',
-    category: 'fashion',
-    user: {
-      name: 'Style Guide',
-      username: 'styleguide',
-      avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
-      verified: true,
-    },
-    content: 'Quick tips for summer fashion that will keep you cool and stylish!',
-    media: 'https://player.vimeo.com/video/342333493',
-    thumbnail: 'https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-    duration: '0:15',
-    time: '12h',
-    likes: 12456,
-    comments: 789,
-    shares: 2345,
-    trending: true,
-  },
-  {
-    id: 'e5',
-    type: 'audio',
-    category: 'music',
-    user: {
-      name: 'Indie Music',
-      username: 'indiemusic',
-      avatar: 'https://randomuser.me/api/portraits/men/67.jpg',
-      verified: true,
-    },
-    content: 'New track from our upcoming album. Let us know what you think!',
-    media: 'https://cdn.pixabay.com/download/audio/2022/10/25/audio_099db1aed1.mp3?filename=the-cradle-of-your-soul-20815.mp3',
-    duration: '3:45',
-    visualizer: true,
-    time: '1d',
-    likes: 8765,
-    comments: 543,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e6',
-    type: 'note',
-    category: 'motivation',
-    user: {
-      name: 'Daily Inspiration',
-      username: 'inspiration',
-      avatar: 'https://i.pravatar.cc/150?img=89',
-      verified: true,
-    },
-    content: '🌟 Daily Affirmation 🌟\n\nYou are capable of amazing things. Believe in yourself and take that first step today.',
-    background: 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)',
-    textColor: 'dark',
-    time: '2d',
-    likes: 15678,
-    comments: 876,
-    shares: 2345,
-    trending: true,
-  },
-  {
-    id: 'e7',
-    type: 'image',
-    category: 'food',
-    user: {
-      name: 'Foodie Adventures',
-      username: 'foodie',
-      avatar: 'https://randomuser.me/api/portraits/women/23.jpg',
-      verified: true,
-    },
-    content: 'Homemade pasta with truffle sauce - a perfect weekend dinner!',
-    media: 'https://images.unsplash.com/photo-1473093295043-cdd812d0e601?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-    time: '1d',
-    likes: 9876,
-    comments: 456,
-    shares: 789,
-    trending: true,
-  },
-  {
-    id: 'e8',
-    type: 'video',
-    category: 'fitness',
-    user: {
-      name: 'Fitness Coach',
-      username: 'fitnesscoach',
-      avatar: 'https://randomuser.me/api/portraits/men/34.jpg',
-      verified: true,
-    },
-    content: '10-minute full body workout you can do anywhere! No equipment needed.',
-    media: 'https://player.vimeo.com/video/174002812',
-    thumbnail: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1740&q=80',
-    duration: '10:00',
-    time: '2d',
-    likes: 23456,
-    comments: 1234,
-    shares: 3456,
-    trending: true,
-  },
-  {
-    id: 'e9',
-    type: 'gallery',
-    category: 'art',
-    user: {
-      name: 'Art Gallery',
-      username: 'artgallery',
-      avatar: 'https://randomuser.me/api/portraits/women/56.jpg',
-      verified: true,
-    },
-    content: 'New exhibition opening this weekend! Here\'s a preview of some featured pieces.',
-    media: [
-      'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1748&q=80',
-      'https://images.unsplash.com/photo-1531913764164-f85c52d7e6a9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80',
-      'https://images.unsplash.com/photo-1536924940846-227afb31e2a5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1732&q=80'
-    ],
-    time: '3d',
-    likes: 7654,
-    comments: 321,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e10',
-    type: 'short',
-    category: 'comedy',
-    user: {
-      name: 'Comedy Central',
-      username: 'comedycentral',
-      avatar: 'https://randomuser.me/api/portraits/men/78.jpg',
-      verified: true,
-    },
-    content: 'When you try to be productive but your cat has other plans 😂',
-    media: 'https://player.vimeo.com/video/201092160',
-    thumbnail: 'https://images.unsplash.com/photo-1533738363-b7f9aef128ce?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1735&q=80',
-    duration: '0:30',
-    time: '1d',
-    likes: 45678,
-    comments: 2345,
-    shares: 8765,
-    trending: true,
-  },
-  {
-    id: 'e11',
-    type: 'audio',
-    category: 'podcast',
-    user: {
-      name: 'Tech Talk',
-      username: 'techtalk',
-      avatar: 'https://i.pravatar.cc/150?img=90',
-      verified: true,
-    },
-    content: 'Latest episode: The future of AI in everyday life. Special guest: Dr. Sarah Chen',
-    media: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    duration: '45:30',
-    visualizer: true,
-    time: '2d',
-    likes: 3456,
-    comments: 234,
-    shares: 567,
-    trending: true,
-  },
-  {
-    id: 'e12',
-    type: 'note',
-    category: 'quotes',
-    user: {
-      name: 'Daily Quotes',
-      username: 'dailyquotes',
-      avatar: 'https://i.pravatar.cc/150?img=45',
-      verified: true,
-    },
-    content: '✨ Today\'s Wisdom ✨\n\n"The only way to do great work is to love what you do." - Steve Jobs',
-    background: 'linear-gradient(120deg, #84fab0 0%, #8fd3f4 100%)',
-    textColor: 'dark',
-    time: '1d',
-    likes: 12345,
-    comments: 678,
-    shares: 2345,
-    trending: true,
-  },
-  {
-    id: 'e13',
-    type: 'image',
-    category: 'nature',
-    user: {
-      name: 'Nature Lover',
-      username: 'naturelover',
-      avatar: 'https://i.pravatar.cc/150?img=67',
-      verified: true,
-    },
-    content: 'Sunrise at the Grand Canyon - a moment of pure magic!',
-    media: 'https://source.unsplash.com/random/600x400?canyon',
-    time: '2d',
-    likes: 23456,
-    comments: 1234,
-    shares: 3456,
-    trending: true,
-  },
-  {
-    id: 'e14',
-    type: 'video',
-    category: 'education',
-    user: {
-      name: 'Learn Daily',
-      username: 'learndaily',
-      avatar: 'https://i.pravatar.cc/150?img=89',
-      verified: true,
-    },
-    content: 'Quick tutorial: How to improve your public speaking skills in 5 minutes',
-    media: 'https://player.vimeo.com/video/484627918?h=6c109e263e&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?speaking',
-    duration: '5:00',
-    time: '3d',
-    likes: 8765,
-    comments: 543,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e15',
-    type: 'gallery',
-    category: 'architecture',
-    user: {
-      name: 'Architecture Daily',
-      username: 'archdaily',
-      avatar: 'https://i.pravatar.cc/150?img=12',
-      verified: true,
-    },
-    content: 'Modern architecture meets nature in these stunning designs from around the world',
-    media: [
-      'https://source.unsplash.com/random/600x400?architecture1',
-      'https://source.unsplash.com/random/600x400?architecture2',
-      'https://source.unsplash.com/random/600x400?architecture3',
-      'https://source.unsplash.com/random/600x400?architecture4'
-    ],
-    time: '4d',
-    likes: 9876,
-    comments: 456,
-    shares: 789,
-    trending: true,
-  },
-  {
-    id: 'e16',
-    type: 'short',
-    category: 'dance',
-    user: {
-      name: 'Dance Studio',
-      username: 'dancestudio',
-      avatar: 'https://i.pravatar.cc/150?img=34',
-      verified: true,
-    },
-    content: 'Learn this viral dance move in 15 seconds!',
-    media: 'https://player.vimeo.com/video/559163669?h=78e7685dd2&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?dance',
-    duration: '0:15',
-    time: '1d',
-    likes: 34567,
-    comments: 2345,
-    shares: 6789,
-    trending: true,
-  },
-  {
-    id: 'e17',
-    type: 'audio',
-    category: 'meditation',
-    user: {
-      name: 'Mindful Moments',
-      username: 'mindfulmoments',
-      avatar: 'https://i.pravatar.cc/150?img=56',
-      verified: true,
-    },
-    content: '5-minute guided meditation for stress relief',
-    media: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    duration: '5:00',
-    visualizer: true,
-    time: '2d',
-    likes: 7654,
-    comments: 321,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e18',
-    type: 'note',
-    category: 'poetry',
-    user: {
-      name: 'Poetry Corner',
-      username: 'poetrycorner',
-      avatar: 'https://i.pravatar.cc/150?img=78',
-      verified: true,
-    },
-    content: '🌙 Midnight Thoughts 🌙\n\nIn the quiet of the night,\nWhere dreams take flight,\nThe stars whisper secrets,\nOf love and light.',
-    background: 'linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)',
-    textColor: 'dark',
-    time: '3d',
-    likes: 12345,
-    comments: 678,
-    shares: 2345,
-    trending: true,
-  },
-  {
-    id: 'e19',
-    type: 'image',
-    category: 'photography',
-    user: {
-      name: 'Photo Pro',
-      username: 'photopro',
-      avatar: 'https://i.pravatar.cc/150?img=90',
-      verified: true,
-    },
-    content: 'Capturing the perfect moment - long exposure photography at its best',
-    media: 'https://source.unsplash.com/random/600x400?photography',
-    time: '4d',
-    likes: 23456,
-    comments: 1234,
-    shares: 3456,
-    trending: true,
-  },
-  {
-    id: 'e20',
-    type: 'video',
-    category: 'cooking',
-    user: {
-      name: 'Chef\'s Table',
-      username: 'chefstable',
-      avatar: 'https://i.pravatar.cc/150?img=23',
-      verified: true,
-    },
-    content: 'Quick and easy pasta recipe that will impress your guests!',
-    media: 'https://player.vimeo.com/video/484627918?h=6c109e263e&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?cooking',
-    duration: '2:30',
-    time: '5d',
-    likes: 8765,
-    comments: 543,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e21',
-    type: 'gallery',
-    category: 'fashion',
-    user: {
-      name: 'Fashion Week',
-      username: 'fashionweek',
-      avatar: 'https://i.pravatar.cc/150?img=45',
-      verified: true,
-    },
-    content: 'Highlights from the latest fashion show - these looks are everything!',
-    media: [
-      'https://source.unsplash.com/random/600x400?fashion1',
-      'https://source.unsplash.com/random/600x400?fashion2',
-      'https://source.unsplash.com/random/600x400?fashion3'
-    ],
-    time: '6d',
-    likes: 9876,
-    comments: 456,
-    shares: 789,
-    trending: true,
-  },
-  {
-    id: 'e22',
-    type: 'short',
-    category: 'comedy',
-    user: {
-      name: 'Funny Moments',
-      username: 'funnymoments',
-      avatar: 'https://i.pravatar.cc/150?img=67',
-      verified: true,
-    },
-    content: 'When you try to be sneaky but fail miserably 😂',
-    media: 'https://player.vimeo.com/video/559163669?h=78e7685dd2&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?funny',
-    duration: '0:20',
-    time: '7d',
-    likes: 34567,
-    comments: 2345,
-    shares: 6789,
-    trending: true,
-  },
-  {
-    id: 'e23',
-    type: 'audio',
-    category: 'music',
-    user: {
-      name: 'Music Producer',
-      username: 'musicproducer',
-      avatar: 'https://i.pravatar.cc/150?img=89',
-      verified: true,
-    },
-    content: 'New beat drop - perfect for your workout playlist!',
-    media: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    duration: '3:15',
-    visualizer: true,
-    time: '8d',
-    likes: 7654,
-    comments: 321,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e24',
-    type: 'note',
-    category: 'motivation',
-    user: {
-      name: 'Success Mindset',
-      username: 'successmindset',
-      avatar: 'https://i.pravatar.cc/150?img=12',
-      verified: true,
-    },
-    content: '💫 Success Tip 💫\n\nYour mindset determines your success. Think big, act bold, and never give up!',
-    background: 'linear-gradient(120deg, #f093fb 0%, #f5576c 100%)',
-    textColor: 'dark',
-    time: '9d',
-    likes: 12345,
-    comments: 678,
-    shares: 2345,
-    trending: true,
-  },
-  {
-    id: 'e25',
-    type: 'image',
-    category: 'travel',
-    user: {
-      name: 'Travel Diaries',
-      username: 'traveldiaries',
-      avatar: 'https://i.pravatar.cc/150?img=34',
-      verified: true,
-    },
-    content: 'Hidden waterfall in the Amazon rainforest - nature at its finest!',
-    media: 'https://source.unsplash.com/random/600x400?waterfall',
-    time: '10d',
-    likes: 23456,
-    comments: 1234,
-    shares: 3456,
-    trending: true,
-  },
-  {
-    id: 'e26',
-    type: 'video',
-    category: 'fitness',
-    user: {
-      name: 'Yoga Life',
-      username: 'yogalife',
-      avatar: 'https://i.pravatar.cc/150?img=56',
-      verified: true,
-    },
-    content: 'Morning yoga routine to start your day with energy and focus',
-    media: 'https://player.vimeo.com/video/484627918?h=6c109e263e&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?yoga',
-    duration: '15:00',
-    time: '11d',
-    likes: 8765,
-    comments: 543,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e27',
-    type: 'gallery',
-    category: 'art',
-    user: {
-      name: 'Art World',
-      username: 'artworld',
-      avatar: 'https://i.pravatar.cc/150?img=78',
-      verified: true,
-    },
-    content: 'Street art that transforms ordinary walls into extraordinary masterpieces',
-    media: [
-      'https://source.unsplash.com/random/600x400?streetart1',
-      'https://source.unsplash.com/random/600x400?streetart2',
-      'https://source.unsplash.com/random/600x400?streetart3'
-    ],
-    time: '12d',
-    likes: 9876,
-    comments: 456,
-    shares: 789,
-    trending: true,
-  },
-  {
-    id: 'e28',
-    type: 'short',
-    category: 'dance',
-    user: {
-      name: 'Dance Crew',
-      username: 'dancecrew',
-      avatar: 'https://i.pravatar.cc/150?img=90',
-      verified: true,
-    },
-    content: 'Learn this trending dance move in 30 seconds!',
-    media: 'https://player.vimeo.com/video/559163669?h=78e7685dd2&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?dance2',
-    duration: '0:30',
-    time: '13d',
-    likes: 34567,
-    comments: 2345,
-    shares: 6789,
-    trending: true,
-  },
-  {
-    id: 'e29',
-    type: 'audio',
-    category: 'podcast',
-    user: {
-      name: 'Business Insights',
-      username: 'businessinsights',
-      avatar: 'https://i.pravatar.cc/150?img=23',
-      verified: true,
-    },
-    content: 'How to build a successful startup in 2024 - expert advice',
-    media: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    duration: '30:00',
-    visualizer: true,
-    time: '14d',
-    likes: 7654,
-    comments: 321,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e30',
-    type: 'note',
-    category: 'quotes',
-    user: {
-      name: 'Wisdom Daily',
-      username: 'wisdomdaily',
-      avatar: 'https://i.pravatar.cc/150?img=45',
-      verified: true,
-    },
-    content: '✨ Daily Wisdom ✨\n\n"The journey of a thousand miles begins with a single step." - Lao Tzu',
-    background: 'linear-gradient(120deg, #667eea 0%, #764ba2 100%)',
-    textColor: 'dark',
-    time: '15d',
-    likes: 12345,
-    comments: 678,
-    shares: 2345,
-    trending: true,
-  },
-  {
-    id: 'e31',
-    type: 'image',
-    category: 'nature',
-    user: {
-      name: 'Nature Explorer',
-      username: 'natureexplorer',
-      avatar: 'https://i.pravatar.cc/150?img=67',
-      verified: true,
-    },
-    content: 'Northern Lights in Iceland - a once in a lifetime experience!',
-    media: 'https://source.unsplash.com/random/600x400?northernlights',
-    time: '16d',
-    likes: 23456,
-    comments: 1234,
-    shares: 3456,
-    trending: true,
-  },
-  {
-    id: 'e32',
-    type: 'video',
-    category: 'education',
-    user: {
-      name: 'Learn Fast',
-      username: 'learnfast',
-      avatar: 'https://i.pravatar.cc/150?img=89',
-      verified: true,
-    },
-    content: 'Quick tips to improve your memory and learning ability',
-    media: 'https://player.vimeo.com/video/484627918?h=6c109e263e&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?learning',
-    duration: '4:00',
-    time: '17d',
-    likes: 8765,
-    comments: 543,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e33',
-    type: 'gallery',
-    category: 'architecture',
-    user: {
-      name: 'Architecture Today',
-      username: 'architecturetoday',
-      avatar: 'https://i.pravatar.cc/150?img=12',
-      verified: true,
-    },
-    content: 'Sustainable architecture that blends with nature',
-    media: [
-      'https://source.unsplash.com/random/600x400?sustainable1',
-      'https://source.unsplash.com/random/600x400?sustainable2',
-      'https://source.unsplash.com/random/600x400?sustainable3'
-    ],
-    time: '18d',
-    likes: 9876,
-    comments: 456,
-    shares: 789,
-    trending: true,
-  },
-  {
-    id: 'e34',
-    type: 'short',
-    category: 'comedy',
-    user: {
-      name: 'Funny Vines',
-      username: 'funnyvines',
-      avatar: 'https://i.pravatar.cc/150?img=34',
-      verified: true,
-    },
-    content: 'When you try to be cool but fail spectacularly 😂',
-    media: 'https://player.vimeo.com/video/559163669?h=78e7685dd2&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?funny2',
-    duration: '0:25',
-    time: '19d',
-    likes: 34567,
-    comments: 2345,
-    shares: 6789,
-    trending: true,
-  },
-  {
-    id: 'e35',
-    type: 'audio',
-    category: 'meditation',
-    user: {
-      name: 'Peaceful Mind',
-      username: 'peacefulmind',
-      avatar: 'https://i.pravatar.cc/150?img=56',
-      verified: true,
-    },
-    content: 'Guided meditation for deep sleep and relaxation',
-    media: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    duration: '20:00',
-    visualizer: true,
-    time: '20d',
-    likes: 7654,
-    comments: 321,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e36',
-    type: 'note',
-    category: 'poetry',
-    user: {
-      name: 'Poetic Soul',
-      username: 'poeticsoul',
-      avatar: 'https://i.pravatar.cc/150?img=78',
-      verified: true,
-    },
-    content: '🌅 Morning Verse 🌅\n\nAs the sun rises,\nSo do our dreams,\nEach day a new beginning,\nEach moment a chance to shine.',
-    background: 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)',
-    textColor: 'dark',
-    time: '21d',
-    likes: 12345,
-    comments: 678,
-    shares: 2345,
-    trending: true,
-  },
-  {
-    id: 'e37',
-    type: 'image',
-    category: 'photography',
-    user: {
-      name: 'Photo Artist',
-      username: 'photoartist',
-      avatar: 'https://i.pravatar.cc/150?img=90',
-      verified: true,
-    },
-    content: 'Urban photography that captures the soul of the city',
-    media: 'https://source.unsplash.com/random/600x400?urban',
-    time: '22d',
-    likes: 23456,
-    comments: 1234,
-    shares: 3456,
-    trending: true,
-  },
-  {
-    id: 'e38',
-    type: 'video',
-    category: 'cooking',
-    user: {
-      name: 'Master Chef',
-      username: 'masterchef',
-      avatar: 'https://i.pravatar.cc/150?img=23',
-      verified: true,
-    },
-    content: '5-minute dessert that will impress your guests!',
-    media: 'https://player.vimeo.com/video/484627918?h=6c109e263e&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?dessert',
-    duration: '5:00',
-    time: '23d',
-    likes: 8765,
-    comments: 543,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e39',
-    type: 'gallery',
-    category: 'fashion',
-    user: {
-      name: 'Fashion Forward',
-      username: 'fashionforward',
-      avatar: 'https://i.pravatar.cc/150?img=45',
-      verified: true,
-    },
-    content: 'Sustainable fashion that doesn\'t compromise on style',
-    media: [
-      'https://source.unsplash.com/random/600x400?sustainablefashion1',
-      'https://source.unsplash.com/random/600x400?sustainablefashion2',
-      'https://source.unsplash.com/random/600x400?sustainablefashion3'
-    ],
-    time: '24d',
-    likes: 9876,
-    comments: 456,
-    shares: 789,
-    trending: true,
-  },
-  {
-    id: 'e40',
-    type: 'short',
-    category: 'comedy',
-    user: {
-      name: 'Laugh Factory',
-      username: 'laughfactory',
-      avatar: 'https://i.pravatar.cc/150?img=67',
-      verified: true,
-    },
-    content: 'When you try to multitask but end up failing at everything 😂',
-    media: 'https://player.vimeo.com/video/559163669?h=78e7685dd2&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?funny3',
-    duration: '0:35',
-    time: '25d',
-    likes: 34567,
-    comments: 2345,
-    shares: 6789,
-    trending: true,
-  },
-  {
-    id: 'e41',
-    type: 'audio',
-    category: 'music',
-    user: {
-      name: 'Music Maker',
-      username: 'musicmaker',
-      avatar: 'https://i.pravatar.cc/150?img=89',
-      verified: true,
-    },
-    content: 'New lo-fi beat perfect for studying or relaxing',
-    media: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    duration: '2:45',
-    visualizer: true,
-    time: '26d',
-    likes: 7654,
-    comments: 321,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e42',
-    type: 'note',
-    category: 'motivation',
-    user: {
-      name: 'Success Path',
-      username: 'successpath',
-      avatar: 'https://i.pravatar.cc/150?img=12',
-      verified: true,
-    },
-    content: '🌟 Success Mantra 🌟\n\nBelieve in yourself, work hard, and never stop learning. Success will follow!',
-    background: 'linear-gradient(120deg, #4facfe 0%, #00f2fe 100%)',
-    textColor: 'dark',
-    time: '27d',
-    likes: 12345,
-    comments: 678,
-    shares: 2345,
-    trending: true,
-  },
-  {
-    id: 'e43',
-    type: 'image',
-    category: 'travel',
-    user: {
-      name: 'Travel Bug',
-      username: 'travelbug',
-      avatar: 'https://i.pravatar.cc/150?img=34',
-      verified: true,
-    },
-    content: 'Sunset at Santorini - the most magical place on earth!',
-    media: 'https://source.unsplash.com/random/600x400?santorini',
-    time: '28d',
-    likes: 23456,
-    comments: 1234,
-    shares: 3456,
-    trending: true,
-  },
-  {
-    id: 'e44',
-    type: 'video',
-    category: 'fitness',
-    user: {
-      name: 'Fitness Pro',
-      username: 'fitnesspro',
-      avatar: 'https://i.pravatar.cc/150?img=56',
-      verified: true,
-    },
-    content: 'Quick HIIT workout you can do at home - no equipment needed!',
-    media: 'https://player.vimeo.com/video/484627918?h=6c109e263e&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?hiit',
-    duration: '12:00',
-    time: '29d',
-    likes: 8765,
-    comments: 543,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e45',
-    type: 'gallery',
-    category: 'art',
-    user: {
-      name: 'Art Gallery',
-      username: 'artgallery',
-      avatar: 'https://i.pravatar.cc/150?img=78',
-      verified: true,
-    },
-    content: 'Digital art that pushes the boundaries of creativity',
-    media: [
-      'https://source.unsplash.com/random/600x400?digitalart1',
-      'https://source.unsplash.com/random/600x400?digitalart2',
-      'https://source.unsplash.com/random/600x400?digitalart3'
-    ],
-    time: '30d',
-    likes: 9876,
-    comments: 456,
-    shares: 789,
-    trending: true,
-  },
-  {
-    id: 'e46',
-    type: 'short',
-    category: 'dance',
-    user: {
-      name: 'Dance Life',
-      username: 'dancelife',
-      avatar: 'https://i.pravatar.cc/150?img=90',
-      verified: true,
-    },
-    content: 'Learn this popular dance move in 20 seconds!',
-    media: 'https://player.vimeo.com/video/559163669?h=78e7685dd2&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?dance3',
-    duration: '0:20',
-    time: '31d',
-    likes: 34567,
-    comments: 2345,
-    shares: 6789,
-    trending: true,
-  },
-  {
-    id: 'e47',
-    type: 'audio',
-    category: 'podcast',
-    user: {
-      name: 'Tech Talk',
-      username: 'techtalk',
-      avatar: 'https://i.pravatar.cc/150?img=23',
-      verified: true,
-    },
-    content: 'The future of technology in 2024 - expert predictions',
-    media: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    duration: '35:00',
-    visualizer: true,
-    time: '32d',
-    likes: 7654,
-    comments: 321,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e48',
-    type: 'note',
-    category: 'quotes',
-    user: {
-      name: 'Daily Wisdom',
-      username: 'dailywisdom',
-      avatar: 'https://i.pravatar.cc/150?img=45',
-      verified: true,
-    },
-    content: '✨ Today\'s Thought ✨\n\n"Success is not final, failure is not fatal: it is the courage to continue that counts." - Winston Churchill',
-    background: 'linear-gradient(120deg, #a8edea 0%, #fed6e3 100%)',
-    textColor: 'dark',
-    time: '33d',
-    likes: 12345,
-    comments: 678,
-    shares: 2345,
-    trending: true,
-  },
-  {
-    id: 'e49',
-    type: 'image',
-    category: 'nature',
-    user: {
-      name: 'Nature\'s Beauty',
-      username: 'naturesbeauty',
-      avatar: 'https://i.pravatar.cc/150?img=67',
-      verified: true,
-    },
-    content: 'Rainbow over the mountains - nature\'s perfect painting!',
-    media: 'https://source.unsplash.com/random/600x400?rainbow',
-    time: '34d',
-    likes: 23456,
-    comments: 1234,
-    shares: 3456,
-    trending: true,
-  },
-  {
-    id: 'e50',
-    type: 'video',
-    category: 'education',
-    user: {
-      name: 'Learn Quick',
-      username: 'learnquick',
-      avatar: 'https://i.pravatar.cc/150?img=89',
-      verified: true,
-    },
-    content: '3-minute tutorial: How to improve your productivity',
-    media: 'https://player.vimeo.com/video/484627918?h=6c109e263e&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?productivity',
-    duration: '3:00',
-    time: '35d',
-    likes: 8765,
-    comments: 543,
-    shares: 987,
-    trending: true,
-  },
-  {
-    id: 'e51',
-    type: 'gallery',
-    category: 'streetfood',
-    user: {
-      name: 'Street Food Explorer',
-      username: 'streetfoodexplorer',
-      avatar: 'https://i.pravatar.cc/150?img=43',
-      verified: true,
-    },
-    content: 'Street food markets in Asia that will blow your taste buds away 🌮🍜',
-    media: [
-      'https://source.unsplash.com/random/600x400?streetfood1',
-      'https://source.unsplash.com/random/600x400?streetfood2',
-      'https://source.unsplash.com/random/600x400?streetfood3'
-    ],
-    time: '24d',
-    likes: 9876,
-    comments: 456,
-    shares: 789,
-    trending: true,
-  },
-  {
-    id: 'e52',
-    type: 'short',
-    category: 'lifehack',
-    user: {
-      name: 'Life Hacker',
-      username: 'lifehacker',
-      avatar: 'https://i.pravatar.cc/150?img=55',
-      verified: true,
-    },
-    content: 'How to fold a fitted sheet perfectly in under 30 seconds! ✨',
-    media: 'https://player.vimeo.com/video/559163669?h=78e7685dd2&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?housework',
-    duration: '0:25',
-    time: '25d',
-    likes: 34567,
-    comments: 2345,
-    shares: 6789,
-    trending: true,
-  },
-  {
-    id: 'e53',
-    type: 'image',
-    category: 'art',
-    user: {
-      name: 'Art Gallery',
-      username: 'artgallery',
-      avatar: 'https://i.pravatar.cc/150?img=48',
-      verified: true,
-    },
-    content: 'Contemporary art installation that plays with light and shadows',
-    media: 'https://source.unsplash.com/random/600x400?contemporaryart',
-    time: '1d',
-    likes: 12543,
-    comments: 783,
-    shares: 2145,
-    trending: true,
-  },
-  {
-    id: 'e54',
-    type: 'video',
-    category: 'science',
-    user: {
-      name: 'Science Today',
-      username: 'sciencetoday',
-      avatar: 'https://i.pravatar.cc/150?img=62',
-      verified: true,
-    },
-    content: 'Watch what happens when you mix these two chemicals together! 🧪',
-    media: 'https://player.vimeo.com/video/484627918?h=6c109e263e&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?chemistry',
-    duration: '3:45',
-    time: '2d',
-    likes: 9875,
-    comments: 876,
-    shares: 1432,
-    trending: true,
-  },
-  {
-    id: 'e55',
-    type: 'note',
-    category: 'philosophy',
-    user: {
-      name: 'Deep Thoughts',
-      username: 'deepthoughts',
-      avatar: 'https://i.pravatar.cc/150?img=39',
-      verified: true,
-    },
-    content: '✨ Philosophical Question ✨\n\n"If a tree falls in a forest and no one is around to hear it, does it make a sound?"\n\nWhat are your thoughts?',
-    background: 'linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%)',
-    textColor: 'dark',
-    time: '3d',
-    likes: 8765,
-    comments: 1543,
-    shares: 432,
-    trending: true,
-  },
-  {
-    id: 'e56',
-    type: 'gallery',
-    category: 'fashion',
-    user: {
-      name: 'Fashion Week',
-      username: 'fashionweek',
-      avatar: 'https://i.pravatar.cc/150?img=29',
-      verified: true,
-    },
-    content: 'Top trends from this year\'s Paris Fashion Week 👗',
-    media: [
-      'https://source.unsplash.com/random/600x400?fashionshow1',
-      'https://source.unsplash.com/random/600x400?fashionshow2',
-      'https://source.unsplash.com/random/600x400?fashionshow3',
-      'https://source.unsplash.com/random/600x400?fashionshow4'
-    ],
-    time: '4d',
-    likes: 23456,
-    comments: 876,
-    shares: 1234,
-    trending: true,
-  },
-  {
-    id: 'e57',
-    type: 'short',
-    category: 'pets',
-    user: {
-      name: 'Pet Lovers',
-      username: 'petlovers',
-      avatar: 'https://i.pravatar.cc/150?img=14',
-      verified: true,
-    },
-    content: 'This dog\'s reaction when his owner comes home after 6 months 😭',
-    media: 'https://player.vimeo.com/video/559163669?h=78e7685dd2&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?dog',
-    duration: '0:28',
-    time: '5d',
-    likes: 45678,
-    comments: 3456,
-    shares: 7654,
-    trending: true,
-  },
-  {
-    id: 'e58',
-    type: 'audio',
-    category: 'education',
-    user: {
-      name: 'Learn Daily',
-      username: 'learndaily',
-      avatar: 'https://i.pravatar.cc/150?img=22',
-      verified: true,
-    },
-    content: 'Learn a new language in your sleep with these proven techniques',
-    media: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
-    duration: '22:15',
-    visualizer: true,
-    time: '6d',
-    likes: 7654,
-    comments: 987,
-    shares: 1234,
-    trending: true,
-  },
-  {
-    id: 'e59',
-    type: 'image',
-    category: 'architecture',
-    user: {
-      name: 'Urban Planning',
-      username: 'urbanplanning',
-      avatar: 'https://i.pravatar.cc/150?img=33',
-      verified: true,
-    },
-    content: 'Revolutionary sustainable building design that produces more energy than it consumes',
-    media: 'https://source.unsplash.com/random/600x400?sustainable',
-    time: '7d',
-    likes: 12345,
-    comments: 876,
-    shares: 2345,
-    trending: true,
-  },
-  {
-    id: 'e60',
-    type: 'video',
-    category: 'DIY',
-    user: {
-      name: 'DIY Master',
-      username: 'diymaster',
-      avatar: 'https://i.pravatar.cc/150?img=42',
-      verified: true,
-    },
-    content: 'How to build a stunning bookshelf from reclaimed wood in one weekend',
-    media: 'https://player.vimeo.com/video/484627918?h=6c109e263e&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?woodworking',
-    duration: '12:32',
-    time: '8d',
-    likes: 8765,
-    comments: 1234,
-    shares: 3456,
-    trending: true,
-  },
-  {
-    id: 'e61',
-    type: 'note',
-    category: 'motivation',
-    user: {
-      name: 'Motivation Coach',
-      username: 'motivationcoach',
-      avatar: 'https://i.pravatar.cc/150?img=53',
-      verified: true,
-    },
-    content: '🔥 Daily Motivation 🔥\n\n"The only way to do great work is to love what you do." - Steve Jobs\n\nWhat are you passionate about?',
-    background: 'linear-gradient(120deg, #ff9a9e 0%, #fad0c4 100%)',
-    textColor: 'dark',
-    time: '9d',
-    likes: 34567,
-    comments: 2345,
-    shares: 6789,
-    trending: true,
-  },
-  {
-    id: 'e62',
-    type: 'gallery',
-    category: 'food',
-    user: {
-      name: 'Food Critic',
-      username: 'foodcritic',
-      avatar: 'https://i.pravatar.cc/150?img=32',
-      verified: true,
-    },
-    content: 'Michelin star desserts that look too good to eat',
-    media: [
-      'https://source.unsplash.com/random/600x400?dessert1',
-      'https://source.unsplash.com/random/600x400?dessert2',
-      'https://source.unsplash.com/random/600x400?dessert3'
-    ],
-    time: '22d',
-    likes: 23456,
-    comments: 1234,
-    shares: 3456,
-    trending: true,
-  },
-  {
-    id: 'e63',
-    type: 'short',
-    category: 'magic',
-    user: {
-      name: 'Magic Tricks',
-      username: 'magictricks',
-      avatar: 'https://i.pravatar.cc/150?img=42',
-      verified: true,
-    },
-    content: 'The card trick that fooled the world\'s best magicians',
-    media: 'https://player.vimeo.com/video/559163669?h=78e7685dd2&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?cards',
-    duration: '0:38',
-    time: '23d',
-    likes: 56789,
-    comments: 4321,
-    shares: 8765,
-    trending: true,
-  },
-  {
-    id: 'e64',
-    type: 'image',
-    category: 'culture',
-    user: {
-      name: 'Cultural Insights',
-      username: 'culturalinsights',
-      avatar: 'https://i.pravatar.cc/150?img=52',
-      verified: true,
-    },
-    content: 'Ancient traditions that are still practiced today in modern society',
-    media: 'https://source.unsplash.com/random/600x400?tradition',
-    time: '24d',
-    likes: 12345,
-    comments: 876,
-    shares: 2345,
-    trending: true,
-  },
-  {
-    id: 'e65',
-    type: 'video',
-    category: 'dance',
-    user: {
-      name: 'Dance Evolution',
-      username: 'danceevolution',
-      avatar: 'https://i.pravatar.cc/150?img=63',
-      verified: true,
-    },
-    content: 'Evolution of hip-hop dance from the 1970s to today in 5 minutes',
-    media: 'https://player.vimeo.com/video/484627918?h=6c109e263e&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?hiphop',
-    duration: '5:00',
-    time: '25d',
-    likes: 67890,
-    comments: 5432,
-    shares: 9876,
-    trending: true,
-  },
-  {
-    id: 'e66',
-    type: 'audio',
-    category: 'interview',
-    user: {
-      name: 'Celebrity Interviews',
-      username: 'celebrityinterviews',
-      avatar: 'https://i.pravatar.cc/150?img=19',
-      verified: true,
-    },
-    content: 'Exclusive interview with the Oscar-winning actor about their upcoming film',
-    media: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3',
-    duration: '28:45',
-    visualizer: true,
-    time: '26d',
-    likes: 89012,
-    comments: 6543,
-    shares: 12098,
-    trending: true,
-  },
-  {
-    id: 'e67',
-    type: 'note',
-    category: 'quotes',
-    user: {
-      name: 'Quotable',
-      username: 'quotable',
-      avatar: 'https://i.pravatar.cc/150?img=27',
-      verified: true,
-    },
-    content: '🌠 Words of Wisdom 🌠\n\n"In the end, we will remember not the words of our enemies, but the silence of our friends." - Martin Luther King Jr.',
-    background: 'linear-gradient(120deg, #a6c0fe 0%, #f68084 100%)',
-    textColor: 'light',
-    time: '27d',
-    likes: 23456,
-    comments: 1234,
-    shares: 3456,
-    trending: true,
-  },
-  {
-    id: 'e68',
-    type: 'gallery',
-    category: 'photography',
-    user: {
-      name: 'Photo Artist',
-      username: 'photoartist',
-      avatar: 'https://i.pravatar.cc/150?img=38',
-      verified: true,
-    },
-    content: 'Breathtaking photos taken at the exact right moment',
-    media: [
-      'https://source.unsplash.com/random/600x400?moment1',
-      'https://source.unsplash.com/random/600x400?moment2',
-      'https://source.unsplash.com/random/600x400?moment3',
-      'https://source.unsplash.com/random/600x400?moment4'
-    ],
-    time: '28d',
-    likes: 34567,
-    comments: 2345,
-    shares: 6789,
-    trending: true,
-  },
-  {
-    id: 'e69',
-    type: 'short',
-    category: 'animals',
-    user: {
-      name: 'Animal Facts',
-      username: 'animalfacts',
-      avatar: 'https://i.pravatar.cc/150?img=49',
-      verified: true,
-    },
-    content: 'This endangered species was thought to be extinct until it was spotted last week! 🦊',
-    media: 'https://player.vimeo.com/video/559163669?h=78e7685dd2&title=0&byline=0&portrait=0',
-    thumbnail: 'https://source.unsplash.com/random/600x400?wildlife',
-    duration: '0:32',
-    time: '29d',
-    likes: 45678,
-    comments: 3456,
-    shares: 7890,
-    trending: true,
-  },
-  {
-    id: 'e70',
-    type: 'image',
-    category: 'weather',
-    user: {
-      name: 'Weather Chasers',
-      username: 'weatherchasers',
-      avatar: 'https://i.pravatar.cc/150?img=60',
-      verified: true,
-    },
-    content: 'Incredible supercell thunderstorm captured in the Great Plains yesterday',
-    media: 'https://source.unsplash.com/random/600x400?thunderstorm',
-    time: '30d',
-    likes: 56789,
-    comments: 4321,
-    shares: 8765,
-    trending: true,
-  }
-];
-
-// Dummy data for notifications
-const notifications = [
-  {
-    id: 'n1',
-    type: 'like',
-    user: {
-      name: 'Alex Johnson',
-      username: 'alexj',
-      avatar: 'https://i.pravatar.cc/150?img=3',
-    },
-    content: 'liked your post',
-    post: {
-      text: 'Just launched our new product!',
-      thumbnail: 'https://source.unsplash.com/random/100x100?tech'
-    },
-    time: '2m',
-    isRead: false
-  },
-  {
-    id: 'n2',
-    type: 'comment',
-    user: {
-      name: 'Emily Chen',
-      username: 'emilyc',
-      avatar: 'https://i.pravatar.cc/150?img=5',
-    },
-    content: 'commented on your post',
-    post: {
-      text: 'This looks amazing! Can\'t wait to try it out.',
-      thumbnail: null
-    },
-    time: '15m',
-    isRead: false
-  }
-];
-
-// Dummy data for saved posts
-const savedPosts = [
-  {
-    id: 's1',
-    type: 'article',
-    title: 'The Future of Remote Work',
-    source: 'TechCrunch',
-    sourceIcon: 'https://i.pravatar.cc/150?img=50',
-    thumbnail: 'https://source.unsplash.com/random/600x400?office',
-    content: 'As companies adapt to the post-pandemic world, many are reimagining what work looks like...',
-    url: '#',
-    timeToRead: '8 min read',
-    savedAt: '2023-09-15',
-    categories: ['Career', 'Technology']
-  },
-  {
-    id: 's2',
-    type: 'post',
-    user: {
-      name: 'Nature Photography',
-      username: 'naturephotos',
-      avatar: 'https://i.pravatar.cc/150?img=12',
-      verified: true,
-    },
-    content: 'The beauty of nature never ceases to amaze. Captured this sunset at Lake Tahoe.',
-    media: 'https://source.unsplash.com/random/600x400?sunset',
-    time: '3d ago',
-    likes: 5204,
-    comments: 189,
-    shares: 1024,
-    savedAt: '2023-09-12'
-  }
-];
-
-// Dummy data for communities
-const myCommunities = [
-  {
-    id: 'c1',
-    name: 'React Developers',
-    description: 'A community for React developers to share resources, ask questions, and collaborate on projects.',
-    members: 125340,
-    avatar: 'https://i.pravatar.cc/150?img=60',
-    coverImage: 'https://source.unsplash.com/random/800x200?react',
-    role: 'member',
-    isPrivate: false,
-    unreadPosts: 12,
-    recentActivity: [
-      {
-        type: 'post',
-        user: {
-          name: 'React Admin',
-          avatar: 'https://i.pravatar.cc/150?img=33'
-        },
-        content: 'Welcome to our weekly discussion: What new React features are you most excited about?',
-        time: '2h'
-      }
-    ]
-  },
-  {
-    id: 'c2',
-    name: 'UX/UI Designers',
-    description: 'Share your work, get feedback, and discuss the latest trends in UX/UI design.',
-    members: 89420,
-    avatar: 'https://i.pravatar.cc/150?img=61',
-    coverImage: 'https://source.unsplash.com/random/800x200?design',
-    role: 'moderator',
-    isPrivate: false,
-    unreadPosts: 5,
-    recentActivity: [
-      {
-        type: 'event',
-        title: 'Design Workshop: Creating Inclusive Interfaces',
-        date: 'September 25, 2023',
-        time: 'Tomorrow'
-      }
-    ]
-  }
-];
-
-// Dummy user profile data
-const userProfile = {
-  id: 'user1',
-  name: 'John Doe',
-  username: 'johndoe',
-  avatar: 'https://i.pravatar.cc/300?img=33',
-  coverImage: 'https://source.unsplash.com/random/1200x400?gradient',
-  bio: 'Software engineer, design enthusiast, and coffee lover. Building digital experiences that make a difference.',
-  location: 'San Francisco, CA',
-  website: 'johndoe.dev',
-  joined: 'March 2020',
-  following: 428,
-  followers: 1253,
-  posts: 216,
-  accountType: 'Pro',
-  subscription: {
-    plan: 'Premium',
-    renewDate: '2023-10-15',
-    features: ['Ad-free experience', 'Enhanced privacy', 'Priority support']
-  },
-  badges: [
-    { id: 'b1', name: 'Early Adopter', icon: 'FaStar' },
-    { id: 'b2', name: 'Top Contributor', icon: 'FaTrophy' },
-    { id: 'b3', name: 'Verified', icon: 'FaCheckCircle' }
-  ],
-  stats: {
-    postsPerMonth: [12, 15, 10, 8, 20, 14, 16, 19, 22, 18, 25, 20],
-    engagement: 84,
-    topCategories: ['Technology', 'Design', 'Productivity']
-  }
-};
-
-// Add stories data
-const stories = [
-  {
-    id: 's1',
-    user: {
-      name: 'Your Story',
-      username: 'you',
-      avatar: 'https://i.pravatar.cc/150?img=33',
-    },
-    unread: false,
-    isYourStory: true
-  },
-  {
-    id: 's2',
-    user: {
-      name: 'Sarah Chen',
-      username: 'sarahc',
-      avatar: 'https://i.pravatar.cc/150?img=47',
-    },
-    unread: true
-  },
-  {
-    id: 's3',
-    user: {
-      name: 'Alex Morgan',
-      username: 'alexm',
-      avatar: 'https://i.pravatar.cc/150?img=19',
-    },
-    unread: true
-  },
-  {
-    id: 's4',
-    user: {
-      name: 'Taylor Swift',
-      username: 'taylorswift',
-      avatar: 'https://i.pravatar.cc/150?img=5',
-      verified: true
-    },
-    unread: true
-  },
-  {
-    id: 's5',
-    user: {
-      name: 'David Kim',
-      username: 'davidk',
-      avatar: 'https://i.pravatar.cc/150?img=65',
-    },
-    unread: true
-  },
-  {
-    id: 's6',
-    user: {
-      name: 'Emma Watson',
-      username: 'emmaw',
-      avatar: 'https://i.pravatar.cc/150?img=9',
-      verified: true
-    },
-    unread: true
-  },
-  {
-    id: 's7',
-    user: {
-      name: 'Michael B',
-      username: 'michaelb',
-      avatar: 'https://i.pravatar.cc/150?img=22',
-    },
-    unread: false
-  },
-  {
-    id: 's8',
-    user: {
-      name: 'Jessica Alba',
-      username: 'jessicaa',
-      avatar: 'https://i.pravatar.cc/150?img=25',
-      verified: true
-    },
-    unread: false
-  }
-];
-
-// Add sidebar options
-const sidebarOptions = [
-  { id: 'feed', icon: FaHome, label: 'Home', view: 'feed' },
-  { id: 'explore', icon: FaHashtag, label: 'Explore', view: 'explore' },
-  { id: 'notifications', icon: FaBell, label: 'Notifications', view: 'notifications', badge: '5' },
-  { id: 'messages', icon: FaEnvelope, label: 'Messages', view: 'messages', badge: '3' },
-  { id: 'saved', icon: FaBookmark, label: 'Saved', view: 'saved' },
-  { id: 'communities', icon: FaUsers, label: 'Communities', view: 'communities' },
-  { id: 'profile', icon: FaUser, label: 'Profile', view: 'profile' },
-  { id: 'premium', icon: FaStar, label: 'Premium', view: 'premium' },
-  { id: 'settings', icon: FaCog, label: 'Settings', view: 'settings' },
-  { id: 'logout', icon: FaSignOutAlt, label: 'Logout', view: 'logout', action: true }
-];
+// Import mock data from the data file
+import {
+  dummyPosts,
+  trendingTopics,
+  whoToFollow,
+  communities,
+  chats,
+  exploreCategories,
+  explorePosts,
+  notifications,
+  savedPosts,
+  myCommunities,
+  userProfile,
+  stories,
+  sidebarOptions
+} from '../data/mockData';
 
 const UserHomePageNew = ({ onSignOut }) => {
   const navigate = useNavigate();
   const { colorMode, toggleColorMode } = useColorMode();
   const { themeVariant } = useThemeVariant();
+  // Get the current theme from Chakra
+  const theme = useTheme();
   
   // State for component
   const [activeView, setActiveView] = useState('feed'); // feed, messages, explore, etc.
@@ -2159,40 +197,15 @@ const UserHomePageNew = ({ onSignOut }) => {
   const cardBg = useColorModeValue('white', 'gray.700');
   const subtleText = useColorModeValue('gray.500', 'gray.400');
   
-  // Theme variant specific colors
-  const primaryColor = {
-    default: 'blue.500',
-    neonFuture: 'cyan.400',
-    pixelPlayground: 'purple.500',
-    otakuRealm: 'pink.400',
-    vintageSepia: 'orange.400',
-    forestHarmony: 'green.500',
-    oceanBreeze: 'teal.400',
-    desertOasis: 'yellow.500'
-  }[themeVariant] || 'blue.500';
+  // Use the actual theme colors instead of hardcoded mappings
+  const primaryColor = theme.colors.primary?.[500] ? 'primary.500' : 'blue.500';
+  const secondaryColor = theme.colors.secondary?.[400] ? 'secondary.400' : 'teal.400';
   
-  const secondaryColor = {
-    default: 'teal.400',
-    neonFuture: 'pink.400',
-    pixelPlayground: 'green.400',
-    otakuRealm: 'purple.400',
-    vintageSepia: 'brown.400',
-    forestHarmony: 'yellow.400',
-    oceanBreeze: 'blue.400',
-    desertOasis: 'orange.400'
-  }[themeVariant] || 'teal.400';
+  // Extract the color scheme name for components
+  const primaryColorScheme = primaryColor.split('.')[0];
   
-  // Gradient background based on theme
-  const gradientBg = {
-    default: 'linear(to-r, blue.400, teal.300)',
-    neonFuture: 'linear(to-r, cyan.300, pink.300)',
-    pixelPlayground: 'linear(to-r, purple.400, green.300)',
-    otakuRealm: 'linear(to-r, pink.300, purple.300)',
-    vintageSepia: 'linear(to-r, orange.300, yellow.200)',
-    forestHarmony: 'linear(to-r, green.400, yellow.300)',
-    oceanBreeze: 'linear(to-r, teal.300, blue.300)',
-    desertOasis: 'linear(to-r, yellow.400, orange.300)'
-  }[themeVariant] || 'linear(to-r, blue.400, teal.300)';
+  // Use theme colors for gradient as well
+  const gradientBg = `linear(to-r, ${primaryColor}, ${secondaryColor})`;
 
   // Functions for handling actions
   const handleBrandClick = () => {
@@ -2273,7 +286,7 @@ const UserHomePageNew = ({ onSignOut }) => {
             <Icon 
               as={FaRocket} 
               boxSize={6} 
-              color={colorMode === 'dark' ? `var(--chakra-colors-${primaryColor.split('.')[0]}-300)` : `var(--chakra-colors-${primaryColor.split('.')[0]}-500)`} 
+              color={colorMode === 'dark' ? `var(--chakra-colors-${primaryColorScheme}-300)` : `var(--chakra-colors-${primaryColorScheme}-500)`} 
             />
             <Text 
               fontWeight="bold" 
@@ -2353,10 +366,10 @@ const UserHomePageNew = ({ onSignOut }) => {
                 borderRadius="lg"
                 cursor="pointer"
                 color={activeView === item.view ? primaryColor : textColor}
-                bg={activeView === item.view ? useColorModeValue(`${primaryColor.split('.')[0]}.50`, `${primaryColor.split('.')[0]}.900`) : 'transparent'}
+                bg={activeView === item.view ? useColorModeValue(`${primaryColorScheme}.50`, `${primaryColorScheme}.900`) : 'transparent'}
                 fontWeight={activeView === item.view ? 'bold' : 'normal'}
                 onClick={() => item.action ? handleLogout() : setActiveView(item.view)}
-                _hover={{ bg: useColorModeValue(`${primaryColor.split('.')[0]}.50`, `${primaryColor.split('.')[0]}.900`) }}
+                _hover={{ bg: useColorModeValue(`${primaryColorScheme}.50`, `${primaryColorScheme}.900`) }}
                 transition="all 0.2s"
               >
                 <Icon as={item.icon} boxSize={{ md: 5, lg: 5 }} />
@@ -2388,20 +401,19 @@ const UserHomePageNew = ({ onSignOut }) => {
             
             {/* Create post button */}
             <Button
-              colorScheme={primaryColor.split('.')[0]}
-              borderRadius="lg"
-              size="md"
-              leftIcon={<Icon as={FaFeatherAlt} />}
-              onClick={onComposeOpen}
               mt={4}
-              display={{ md: 'none', lg: 'flex' }}
+              w="full"
+              colorScheme={primaryColorScheme}
+              leftIcon={<FaPlus />}
+              onClick={onComposeOpen}
+              size="sm"
             >
               Create
             </Button>
             
             <IconButton
               icon={<Icon as={FaFeatherAlt} />}
-              colorScheme={primaryColor.split('.')[0]}
+              colorScheme={primaryColorScheme}
               borderRadius="lg"
               aria-label="Create post"
               onClick={onComposeOpen}
@@ -2493,7 +505,7 @@ const UserHomePageNew = ({ onSignOut }) => {
                 borderColor={borderColor}
               >
                 <HStack spacing={3} align="start" w="100%">
-                  <Avatar size="md" src="https://i.pravatar.cc/150?img=33" name="John Doe" />
+                  <Avatar size="md" src={userProfilePicture} name={userProfile.name} />
                   <Box flex="1">
                     <Box
                       as="button"
@@ -2552,7 +564,7 @@ const UserHomePageNew = ({ onSignOut }) => {
               
               {/* Feed Content */}
               <VStack spacing={4} align="stretch" mb={10} w="100%">
-                {dummyPosts.map((post) => (
+                {dummyPosts.filter(post => post.user.name !== 'Abhi P.').map((post) => (
                   <Box 
                     key={post.id} 
                     p={4} 
@@ -2714,7 +726,7 @@ const UserHomePageNew = ({ onSignOut }) => {
                         <Button 
                           flex={1} 
                           size="sm" 
-                          colorScheme={activeTab === 'all' ? primaryColor.split('.')[0] : 'gray'} 
+                          colorScheme={activeTab === 'all' ? primaryColorScheme : 'gray'} 
                           variant={activeTab === 'all' ? 'solid' : 'ghost'}
                           onClick={() => setActiveTab('all')}
                           borderRadius="full"
@@ -2724,7 +736,7 @@ const UserHomePageNew = ({ onSignOut }) => {
                         <Button 
                           flex={1} 
                           size="sm" 
-                          colorScheme={activeTab === 'personal' ? primaryColor.split('.')[0] : 'gray'} 
+                          colorScheme={activeTab === 'personal' ? primaryColorScheme : 'gray'} 
                           variant={activeTab === 'personal' ? 'solid' : 'ghost'}
                           onClick={() => setActiveTab('personal')}
                           borderRadius="full"
@@ -2734,7 +746,7 @@ const UserHomePageNew = ({ onSignOut }) => {
                         <Button 
                           flex={1} 
                           size="sm" 
-                          colorScheme={activeTab === 'groups' ? primaryColor.split('.')[0] : 'gray'} 
+                          colorScheme={activeTab === 'groups' ? primaryColorScheme : 'gray'} 
                           variant={activeTab === 'groups' ? 'solid' : 'ghost'}
                           onClick={() => setActiveTab('groups')}
                           borderRadius="full"
@@ -2758,7 +770,7 @@ const UserHomePageNew = ({ onSignOut }) => {
                             borderBottomWidth="1px" 
                             borderColor={borderColor}
                             bg={currentChat?.id === chat.id ? 
-                                useColorModeValue(`${primaryColor.split('.')[0]}.50`, `${primaryColor.split('.')[0]}.900`) : 
+                                useColorModeValue(`${primaryColorScheme}.50`, `${primaryColorScheme}.900`) : 
                                 'transparent'}
                             _hover={{ bg: useColorModeValue('gray.50', 'gray.700') }}
                             cursor="pointer"
@@ -2859,7 +871,7 @@ const UserHomePageNew = ({ onSignOut }) => {
                       </Box>
                       <HStack ml="auto" spacing={2}>
                         <IconButton
-                          icon={<Icon as={FaPhone} />}
+                          icon={<Icon as={FaPhoneAlt} />}
                           size="sm"
                           variant="ghost"
                           borderRadius="full"
@@ -2948,7 +960,7 @@ const UserHomePageNew = ({ onSignOut }) => {
                         />
                         <IconButton
                           icon={<Icon as={FaPaperPlane} />}
-                          colorScheme={primaryColor.split('.')[0]}
+                          colorScheme={primaryColorScheme}
                           borderRadius="full"
                           aria-label="Send message"
                           onClick={handleSendMessage}
@@ -2996,13 +1008,13 @@ const UserHomePageNew = ({ onSignOut }) => {
                 overflow="hidden"
                 bg={cardBg}
                 mb={6}
-                boxShadow="lg"
+                boxShadow="xl"
               >
                 {/* Cover Photo with Gradient Overlay */}
                 <Box 
-                  h={{ base: "180px", md: "280px" }} 
+                  h={{ base: "160px", md: "240px" }} 
                   position="relative"
-                  bgImage={`url(${userProfile.coverImage})`}
+                  bgImage={`url("https://images.unsplash.com/photo-1496588152823-86ff7695e68f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80")`}
                   bgSize="cover"
                   bgPosition="center"
                 >
@@ -3015,244 +1027,293 @@ const UserHomePageNew = ({ onSignOut }) => {
                     bottom="0"
                     bgGradient={`linear(to-t, ${cardBg}, transparent 70%)`}
                   />
-                  
+                </Box>
+                
+                {/* Profile Content Container */}
+                <Box px={{ base: 4, md: 8 }} pb={8} pt={0} position="relative">
+                  {/* Profile Picture */}
                   <Box 
-                    position="absolute" 
-                    bottom={{ base: "-50px", md: "-60px" }} 
-                    left={{ base: "50%", md: "80px" }} 
-                    transform={{ base: "translateX(-50%)", md: "translateX(0)" }}
-                    zIndex="1"
+                    position="relative" 
+                    mt={{ base: "-60px", md: "-80px" }}
+                    mb={6}
+                    display="flex"
+                    justifyContent={{ base: "center", md: "flex-start" }}
                   >
                     <Box 
-                      position="relative" 
-                      display="inline-block"
                       p="3px"
                       bg={`linear-gradient(45deg, ${primaryColor}, purple.500)`}
                       borderRadius="full"
+                      boxShadow="xl"
                     >
                       <Avatar 
                         size={{ base: "xl", md: "2xl" }} 
-                        src={userProfile.avatar} 
+                        src={userProfilePicture} 
                         name={userProfile.name} 
                         borderWidth="4px" 
                         borderColor={cardBg}
-                        boxShadow="lg"
                       />
-                      <Box 
-                        position="absolute"
-                        bottom="8px"
-                        right="8px"
-                        bg={primaryColor}
-                        borderRadius="full"
-                        w="26px"
-                        h="26px"
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                        color="white"
-                        fontSize="xs"
-                        fontWeight="bold"
-                        boxShadow="md"
-                        borderWidth="2px"
-                        borderColor={cardBg}
-                      >
-                        <Icon as={FaCrown} boxSize={3.5} />
-                      </Box>
-                    </Box>
-                  </Box>
-                  
-                  <HStack position="absolute" top="4" right="4" spacing={2}>
-                    <Button 
-                      leftIcon={<Icon as={FaEdit} />}
-                      size="sm"
-                      colorScheme={primaryColor.split('.')[0]}
-                      variant="solid"
-                      boxShadow="md"
-                      borderRadius="full"
-                      _hover={{
-                        transform: "translateY(-2px)",
-                        boxShadow: "lg"
-                      }}
-                      transition="all 0.2s"
-                    >
-                      Edit Profile
-                    </Button>
-                    <IconButton
-                      icon={<Icon as={FaShareAlt} />}
-                      size="sm"
-                      colorScheme={primaryColor.split('.')[0]}
-                      variant="solid"
-                      boxShadow="md"
-                      borderRadius="full"
-                      aria-label="Share profile"
-                      _hover={{
-                        transform: "translateY(-2px)",
-                        boxShadow: "lg"
-                      }}
-                      transition="all 0.2s"
-                    />
-                  </HStack>
-                </Box>
-                
-                {/* Profile Info */}
-                <Box 
-                  pl={{ base: "0", md: "280px" }} 
-                  pt={{ base: "60px", md: "30px" }} 
-                  pb="6" 
-                  px={{ base: "4", md: "6" }}
-                  textAlign={{ base: "center", md: "left" }}
-                >
-                  <Flex 
-                    direction={{ base: "column", md: "row" }} 
-                    justify="space-between" 
-                    align={{ base: "center", md: "flex-start" }}
-                  >
-                    <Box mb={{ base: 4, md: 0 }}>
-                      <HStack spacing={2} justifyContent={{ base: "center", md: "flex-start" }} mb={1}>
-                        <Heading size="lg" bgGradient={`linear(to-r, ${primaryColor}, purple.500)`} bgClip="text">
-                          {userProfile.name}
-                        </Heading>
-                        <Icon as={FaCheckCircle} color={primaryColor} />
-                      </HStack>
-                      
-                      <HStack spacing={2} justifyContent={{ base: "center", md: "flex-start" }} mb={4}>
-                        <Text color={subtleText} fontSize="md">@{userProfile.username}</Text>
-                        <Badge colorScheme={primaryColor.split('.')[0]} variant="subtle" px={2} py={0.5} borderRadius="full">
-                          {userProfile.accountType}
-                        </Badge>
-                      </HStack>
-                      
-                      <Text mb={4} fontSize="md" maxW="600px" lineHeight="1.6">
-                        {userProfile.bio}
-                      </Text>
                     </Box>
                     
-                    {/* User Stats Cards */}
-                    <Flex 
-                      wrap="wrap" 
-                      justify={{ base: "center", md: "flex-end" }}
-                      gap={4}
+                    {/* Action Buttons - Positioned to the right on desktop */}
+                    <HStack 
+                      position={{ base: "static", md: "absolute" }} 
+                      top={{ md: "10px" }} 
+                      right={{ md: "20px" }}
+                      mt={{ base: 4, md: 0 }}
+                      spacing={3}
+                      justifyContent={{ base: "center", md: "flex-end" }}
                     >
-                      <Box 
-                        borderWidth="1px"
-                        borderColor={borderColor}
-                        borderRadius="xl"
-                        p={4}
-                        bg={useColorModeValue("white", "gray.700")}
-                        width={{ base: "30%", sm: "auto" }}
-                        minW={{ sm: "120px" }}
-                        textAlign="center"
-                        boxShadow="sm"
-                        _hover={{ 
+                      <Button 
+                        leftIcon={<Icon as={FaEdit} />}
+                        size={{ base: "sm", md: "md" }}
+                        colorScheme={primaryColorScheme}
+                        borderRadius="full"
+                        boxShadow="md"
+                        _hover={{
                           transform: "translateY(-2px)",
-                          boxShadow: "md"
+                          boxShadow: "lg"
                         }}
                         transition="all 0.2s"
+                      >
+                        Edit Profile
+                      </Button>
+                      <IconButton
+                        icon={<Icon as={FaShareAlt} />}
+                        size={{ base: "sm", md: "md" }}
+                        colorScheme={primaryColorScheme}
+                        variant="solid"
+                        boxShadow="md"
+                        borderRadius="full"
+                        aria-label="Share profile"
+                        _hover={{
+                          transform: "translateY(-2px)",
+                          boxShadow: "lg"
+                        }}
+                        transition="all 0.2s"
+                      />
+                    </HStack>
+                  </Box>
+                  
+                  {/* Profile Info */}
+                  <Flex 
+                    direction="column"
+                    alignItems={{ base: "center", md: "flex-start" }}
+                    textAlign={{ base: "center", md: "left" }}
+                    mb={8}
+                  >
+                    {/* Name and Username */}
+                    <Heading 
+                      size="lg" 
+                      bgGradient={`linear(to-r, ${primaryColor}, purple.500)`} 
+                      bgClip="text"
+                      mb={1}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      {userProfile.name}
+                      <Icon as={FaCheckCircle} color={primaryColor} ml={2} boxSize={5} />
+                    </Heading>
+                    
+                    <Text 
+                      color={subtleText} 
+                      fontSize="md" 
+                      mb={4}
+                      display="flex"
+                      alignItems="center"
+                    >
+                      @{userProfile.username}
+                      <Badge 
+                        colorScheme={primaryColorScheme} 
+                        variant="subtle" 
+                        px={2} 
+                        py={0.5} 
+                        borderRadius="full"
+                        ml={2}
+                      >
+                        {userProfile.accountType}
+                      </Badge>
+                    </Text>
+                    
+                    {/* Bio */}
+                    <Text 
+                      mb={5} 
+                      fontSize="md" 
+                      maxW="600px" 
+                      lineHeight="1.6"
+                    >
+                      {userProfile.bio}
+                    </Text>
+                    
+                    {/* Additional Info */}
+                    <HStack 
+                      spacing={{ base: 4, md: 6 }} 
+                      wrap="wrap" 
+                      justify={{ base: "center", md: "flex-start" }}
+                      mb={5}
+                    >
+                      {userProfile.location && (
+                        <HStack spacing={2}>
+                          <Icon as={FaMapMarkerAlt} color={primaryColor} />
+                          <Text fontSize="sm">{userProfile.location}</Text>
+                        </HStack>
+                      )}
+                      
+                      {userProfile.website && (
+                        <HStack spacing={2}>
+                          <Icon as={FaLink} color={primaryColor} />
+                          <Text fontSize="sm" color={primaryColor} fontWeight="medium">
+                            {userProfile.website}
+                          </Text>
+                        </HStack>
+                      )}
+                      
+                      <HStack spacing={4}>
+                        <Icon as={FaCalendarAlt} color={primaryColor} />
+                        <Text fontSize="sm">Joined {userProfile.joined}</Text>
+                      </HStack>
+                    </HStack>
+                    
+                    {/* Stats Cards */}
+                    <Flex 
+                      width={{ base: "100%", md: "50%" }}
+                      borderTop="1px"
+                      borderColor={borderColor}
+                      pt={5}
+                      gap={0}
+                      justifyContent="flex-start"
+                      alignSelf="flex-start"
+                    >
+                      <VStack 
+                        pr={{ base: 2, md: 6 }}
+                        spacing={1}
+                        align="flex-start"
+                        flex={{ base: 1, md: "auto" }}
                       >
                         <Text fontSize="2xl" fontWeight="bold" bgGradient={`linear(to-r, ${primaryColor}, purple.500)`} bgClip="text">
                           {userProfile.posts}
                         </Text>
                         <Text fontSize="sm" color={subtleText} fontWeight="medium">Posts</Text>
-                      </Box>
+                      </VStack>
                       
-                      <Box 
-                        borderWidth="1px"
+                      <VStack 
+                        pr={{ base: 2, md: 6 }}
+                        spacing={1}
+                        align="flex-start"
+                        px={{ base: 2, md: 0 }}
+                        borderX={{ base: "1px", md: "1px 0 1px 1px" }}
                         borderColor={borderColor}
-                        borderRadius="xl"
-                        p={4}
-                        bg={useColorModeValue("white", "gray.700")}
-                        width={{ base: "30%", sm: "auto" }}
-                        minW={{ sm: "120px" }}
-                        textAlign="center"
-                        boxShadow="sm"
-                        _hover={{ 
-                          transform: "translateY(-2px)",
-                          boxShadow: "md"
-                        }}
-                        transition="all 0.2s"
-                      >
-                        <Text fontSize="2xl" fontWeight="bold" bgGradient={`linear(to-r, ${primaryColor}, purple.500)`} bgClip="text">
-                          {userProfile.following}
-                        </Text>
-                        <Text fontSize="sm" color={subtleText} fontWeight="medium">Following</Text>
-                      </Box>
-                      
-                      <Box 
-                        borderWidth="1px"
-                        borderColor={borderColor}
-                        borderRadius="xl"
-                        p={4}
-                        bg={useColorModeValue("white", "gray.700")}
-                        width={{ base: "30%", sm: "auto" }}
-                        minW={{ sm: "120px" }}
-                        textAlign="center"
-                        boxShadow="sm"
-                        _hover={{ 
-                          transform: "translateY(-2px)",
-                          boxShadow: "md"
-                        }}
-                        transition="all 0.2s"
+                        flex={{ base: 1, md: "auto" }}
                       >
                         <Text fontSize="2xl" fontWeight="bold" bgGradient={`linear(to-r, ${primaryColor}, purple.500)`} bgClip="text">
                           {userProfile.followers}
                         </Text>
                         <Text fontSize="sm" color={subtleText} fontWeight="medium">Followers</Text>
-                      </Box>
+                      </VStack>
+                      
+                      <VStack 
+                        spacing={1}
+                        align="flex-start"
+                        flex={{ base: 1, md: "auto" }}
+                      >
+                        <Text fontSize="2xl" fontWeight="bold" bgGradient={`linear(to-r, ${primaryColor}, purple.500)`} bgClip="text">
+                          {userProfile.following}
+                        </Text>
+                        <Text fontSize="sm" color={subtleText} fontWeight="medium">Following</Text>
+                      </VStack>
                     </Flex>
                   </Flex>
-                  
-                  <Divider my={5} />
-                  
-                  <HStack spacing={6} wrap="wrap" justify={{ base: "center", md: "flex-start" }}>
-                    {userProfile.location && (
-                      <HStack spacing={2}>
-                        <Icon as={FaMapMarkerAlt} color={primaryColor} />
-                        <Text fontSize="sm">{userProfile.location}</Text>
-                      </HStack>
-                    )}
-                    
-                    {userProfile.website && (
-                      <HStack spacing={2}>
-                        <Icon as={FaLink} color={primaryColor} />
-                        <Text fontSize="sm" color={primaryColor} textDecoration="underline" fontWeight="medium">
-                          {userProfile.website}
-                        </Text>
-                      </HStack>
-                    )}
-                    
-                    <HStack spacing={2}>
-                      <Icon as={FaCalendarAlt} color={primaryColor} />
-                      <Text fontSize="sm">Joined {userProfile.joined}</Text>
-                    </HStack>
-                    
-                    <HStack spacing={2}>
-                      <Icon as={FaChartLine} color={primaryColor} />
-                      <Text fontSize="sm">{userProfile.stats.engagement}% Engagement</Text>
-                    </HStack>
-                  </HStack>
                 </Box>
               </Box>
               
               {/* User Profile Tabs */}
               <Box mb={6}>
-                <Tabs colorScheme={primaryColor.split('.')[0]} variant="soft-rounded">
-                  <TabList mb={6} overflowX="auto" py={2} css={{
-                    '&::-webkit-scrollbar': {
-                      display: 'none',
-                    }
-                  }}>
-                    <Tab _selected={{ color: "white", bg: primaryColor }}>Posts</Tab>
-                    <Tab _selected={{ color: "white", bg: primaryColor }}>Media</Tab>
-                    <Tab _selected={{ color: "white", bg: primaryColor }}>Likes</Tab>
-                    <Tab _selected={{ color: "white", bg: primaryColor }}>Highlights</Tab>
-                    <Tab _selected={{ color: "white", bg: primaryColor }}>Analytics</Tab>
+                <Tabs colorScheme={primaryColorScheme} variant="soft-rounded">
+                  <TabList 
+                    mb={6} 
+                    overflowX="auto" 
+                    py={2}
+                    display="flex"
+                    justifyContent={{ base: "space-between", md: "flex-start" }}
+                    borderBottom="1px"
+                    borderColor={borderColor}
+                    pb={3}
+                    css={{
+                      '&::-webkit-scrollbar': {
+                        display: 'none',
+                      }
+                    }}
+                  >
+                    <Tab 
+                      _selected={{ 
+                        color: "white", 
+                        bg: primaryColor,
+                        fontWeight: "bold"
+                      }}
+                      mr={{ md: 2 }}
+                      fontSize={{ base: "sm", md: "md" }}
+                      px={{ base: 3, md: 4 }}
+                      py={2}
+                    >
+                      Posts
+                    </Tab>
+                    <Tab 
+                      _selected={{ 
+                        color: "white", 
+                        bg: primaryColor,
+                        fontWeight: "bold"
+                      }}
+                      mr={{ md: 2 }}
+                      fontSize={{ base: "sm", md: "md" }}
+                      px={{ base: 3, md: 4 }}
+                      py={2}
+                    >
+                      Media
+                    </Tab>
+                    <Tab 
+                      _selected={{ 
+                        color: "white", 
+                        bg: primaryColor,
+                        fontWeight: "bold"
+                      }}
+                      mr={{ md: 2 }}
+                      fontSize={{ base: "sm", md: "md" }}
+                      px={{ base: 3, md: 4 }}
+                      py={2}
+                    >
+                      Likes
+                    </Tab>
+                    <Tab 
+                      _selected={{ 
+                        color: "white", 
+                        bg: primaryColor,
+                        fontWeight: "bold"
+                      }}
+                      mr={{ md: 2 }}
+                      fontSize={{ base: "sm", md: "md" }}
+                      px={{ base: 3, md: 4 }}
+                      py={2}
+                    >
+                      Highlights
+                    </Tab>
+                    <Tab 
+                      _selected={{ 
+                        color: "white", 
+                        bg: primaryColor,
+                        fontWeight: "bold"
+                      }}
+                      fontSize={{ base: "sm", md: "md" }}
+                      px={{ base: 3, md: 4 }}
+                      py={2}
+                    >
+                      Analytics
+                    </Tab>
                   </TabList>
                   
                   <TabPanels>
                     <TabPanel px={0}>
-                      {/* User Posts Tab */}
+                      {/* User Posts Tab - Only Show Abhi P.'s Posts */}
                       <VStack spacing={6} align="stretch">
-                        {dummyPosts.slice(0, 3).map((post) => (
+                        {dummyPosts.filter(post => post.user.name === 'Abhi P.').map((post) => (
                           <Box 
                             key={post.id} 
                             p={4} 
@@ -3266,7 +1327,7 @@ const UserHomePageNew = ({ onSignOut }) => {
                           >
                             {/* Post Header */}
                             <HStack spacing={3} mb={3}>
-                              <Avatar src={post.user.avatar} name={post.user.name} />
+                              <Avatar src={userProfilePicture} name={post.user.name} />
                               <Box>
                                 <HStack>
                                   <Text fontWeight="bold">{post.user.name}</Text>
@@ -3363,6 +1424,28 @@ const UserHomePageNew = ({ onSignOut }) => {
                             </HStack>
                           </Box>
                         ))}
+                        
+                        {dummyPosts.filter(post => post.user.name === 'Abhi P.').length === 0 && (
+                          <Box 
+                            p={6} 
+                            bg={cardBg} 
+                            borderRadius="lg" 
+                            borderWidth="1px"
+                            borderColor={borderColor}
+                            textAlign="center"
+                          >
+                            <Icon as={FaFeatherAlt} boxSize={12} color={subtleText} mb={4} />
+                            <Heading size="md" mb={2}>No posts yet</Heading>
+                            <Text color={subtleText} mb={4}>You haven't created any posts yet.</Text>
+                            <Button 
+                              colorScheme={primaryColorScheme} 
+                              leftIcon={<Icon as={FaPlus} />}
+                              onClick={onComposeOpen}
+                            >
+                              Create your first post
+                            </Button>
+                          </Box>
+                        )}
                       </VStack>
                     </TabPanel>
                     
@@ -3688,75 +1771,12 @@ const UserHomePageNew = ({ onSignOut }) => {
 
           {/* Explore Section */}
           {activeView === 'explore' && (
-            <Box>
-              {/* Explore categories */}
-              <Box mb={6} overflowX="auto" pb={2}>
-                <HStack spacing={3}>
-                  {exploreCategories.map((category) => (
-                    <Button 
-                      key={category.id}
-                      leftIcon={<Icon as={category.icon} />}
-                      size="sm"
-                      borderRadius="full"
-                      minW="auto"
-                      colorScheme={primaryColor.split('.')[0]}
-                      variant="outline"
-                    >
-                      {category.name}
-                    </Button>
-                  ))}
-                </HStack>
-              </Box>
-
-              {/* Explore posts grid */}
-              <Grid templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(3, 1fr)" }} gap={4}>
-                {explorePosts.map((post) => (
-                  <Box
-                    key={post.id}
-                    borderRadius="md"
-                    overflow="hidden"
-                    position="relative"
-                    cursor="pointer"
-                    transition="all 0.2s"
-                    _hover={{ transform: "translateY(-2px)", boxShadow: "lg" }}
-                    onClick={() => setViewingPost(post)}
-                  >
-                    <Image
-                      src={post.thumbnail || (Array.isArray(post.media) ? post.media[0] : post.media)}
-                      alt={post.content}
-                      width="100%"
-                      height="250px"
-                      objectFit="cover"
-                    />
-                    {post.type === 'video' && (
-                      <Box position="absolute" top="10px" right="10px" bg="blackAlpha.700" borderRadius="md" px={2} py={1}>
-                        <Text fontSize="xs" color="white">{post.duration}</Text>
-                      </Box>
-                    )}
-                    <Box
-                      position="absolute"
-                      bottom="0"
-                      left="0"
-                      right="0"
-                      bg="blackAlpha.600"
-                      p={2}
-                      color="white"
-                    >
-                      <HStack spacing={3}>
-                        <HStack spacing={1}>
-                          <Icon as={FaHeart} />
-                          <Text fontSize="sm">{post.likes}</Text>
-                        </HStack>
-                        <HStack spacing={1}>
-                          <Icon as={FaComment} />
-                          <Text fontSize="sm">{post.comments}</Text>
-                        </HStack>
-                      </HStack>
-                    </Box>
-                  </Box>
-                ))}
-              </Grid>
-            </Box>
+            <ExploreSection 
+              explorePosts={explorePosts}
+              exploreCategories={exploreCategories}
+              primaryColor={primaryColor} 
+              setViewingPost={setViewingPost}
+            />
           )}
 
           {/* Premium Section */}
@@ -4211,7 +2231,7 @@ const UserHomePageNew = ({ onSignOut }) => {
           <ModalCloseButton />
           <ModalBody pb={6}>
             <HStack spacing={3} align="start">
-              <Avatar src="https://i.pravatar.cc/150?img=33" name="John Doe" />
+              <Avatar src={userProfilePicture} name={userProfile.name} />
               <VStack spacing={4} align="stretch" flex={1}>
                 <Textarea
                   placeholder="What's on your mind?"

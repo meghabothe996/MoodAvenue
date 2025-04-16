@@ -324,8 +324,14 @@ function SimpleLanding({ onStartClick }) {
           zIndex={1000}
         >
           <Heading as="h1" size="lg">
-            <Text as="span" color="primary.500">M</Text>ood
-            <Text as="span" color="primary.500">A</Text>venue
+            <Text 
+              as="span" 
+              bgGradient={`linear(to-r, ${isDark ? 'primary.300' : 'primary.500'}, ${isDark ? 'secondary.300' : 'secondary.500'})`}
+              bgClip="text"
+              fontWeight="extrabold"
+            >
+              MoodAvenue
+            </Text>
           </Heading>
           <HStack spacing={3}>
             <ThemeSelector className="theme-selector" />
@@ -1249,9 +1255,15 @@ function SimpleLanding({ onStartClick }) {
               >
                 {/* Company Info */}
                 <VStack align="start" spacing={6}>
-                  <Heading size="lg" color={highlightColor}>
-                    <Text as="span" color="primary.500">M</Text>ood
-                    <Text as="span" color="primary.500">A</Text>venue
+                  <Heading size="lg">
+                    <Text 
+                      as="span" 
+                      bgGradient={`linear(to-r, ${isDark ? 'primary.300' : 'primary.500'}, ${isDark ? 'secondary.300' : 'secondary.500'})`}
+                      bgClip="text"
+                      fontWeight="extrabold"
+                    >
+                      MoodAvenue
+                    </Text>
                   </Heading>
                   <Text color={textColor} fontSize="md" maxW="300px">
                     Express yourself through personalized themes and emotional connections in our vibrant chat community.
@@ -1397,8 +1409,15 @@ function SimpleLanding({ onStartClick }) {
                 flexDir={{ base: 'column', lg: 'row' }}
                 gap={4}
               >
-                <Text color={textColor} fontSize="sm">
-                  © 2025 MoodAvenue. All rights reserved.
+                <Text fontSize="sm">
+                  © 2025 <Text 
+                    as="span" 
+                    bgGradient={`linear(to-r, ${isDark ? 'primary.300' : 'primary.500'}, ${isDark ? 'secondary.300' : 'secondary.500'})`}
+                    bgClip="text"
+                    fontWeight="bold"
+                  >
+                    MoodAvenue
+                  </Text>. All rights reserved.
                 </Text>
                 <HStack spacing={8}>
                   <Button 

@@ -1,13 +1,13 @@
 import React from 'react';
 import { Box, Grid, HStack, Button, Icon, Text, Image } from '@chakra-ui/react';
 import { FaHeart, FaComment, FaPlay } from 'react-icons/fa';
-import additionalExplorePosts from './ExplorePosts';
-import moreExplorePosts from './MoreExplorePosts';
+import combinedExplorePosts from './ExplorePosts';
 
 // This component can be used to replace or enhance the existing explore section
 const ExploreSection = ({ explorePosts = [], exploreCategories = [], primaryColor = "blue.500", setViewingPost }) => {
-  // Combine all posts
-  const allExplorePosts = [...explorePosts, ...additionalExplorePosts, ...moreExplorePosts];
+  // Combine all posts - now just using the combinedExplorePosts and any explorePosts passed in
+  const allExplorePosts = [...explorePosts, ...combinedExplorePosts];
+  const primaryColorScheme = primaryColor.split('.')[0];
   
   return (
     <Box>
@@ -21,7 +21,7 @@ const ExploreSection = ({ explorePosts = [], exploreCategories = [], primaryColo
               size="sm"
               borderRadius="full"
               minW="auto"
-              colorScheme={primaryColor.split('.')[0]}
+              colorScheme={primaryColorScheme}
               variant="outline"
             >
               {category.name}
