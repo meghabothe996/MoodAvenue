@@ -1,6 +1,4 @@
-<div align="center>
-<p>✨ MoodAvenue - Next-Gen Social Experience ✨</P>
-</div>
+#✨ MoodAvenue - Next-Gen Social Experience ✨
 
 <div align="center">
   
