@@ -2,7 +2,7 @@
 
 <div align="center">
   
-  ![MoodAvenue](https://source.unsplash.com/random/800x400?gradient,social,app)
+  ![MoodAvenue](src\assets\readme.jpg)
   
   ### 🌈 Express Yourself. Connect Authentically. Explore Boundlessly. 🌈
   
