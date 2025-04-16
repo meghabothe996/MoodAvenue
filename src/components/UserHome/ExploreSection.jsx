@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Grid, HStack, Button, Icon, Text, Image } from '@chakra-ui/react';
 import { FaHeart, FaComment, FaPlay } from 'react-icons/fa';
-import combinedExplorePosts from './ExplorePosts';
+import { combinedExplorePosts } from './ExplorePosts';
 
 // This component can be used to replace or enhance the existing explore section
 const ExploreSection = ({ explorePosts = [], exploreCategories = [], primaryColor = "blue.500", setViewingPost }) => {

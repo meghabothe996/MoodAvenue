@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Box,
   Flex,
@@ -169,6 +169,9 @@ const UserHomePageNew = ({ onSignOut }) => {
   const { themeVariant } = useThemeVariant();
   // Get the current theme from Chakra
   const theme = useTheme();
+  
+  // Create cancelRef for the AlertDialog
+  const cancelRef = useRef();
   
   // State for component
   const [activeView, setActiveView] = useState('feed'); // feed, messages, explore, etc.
@@ -2650,7 +2653,7 @@ const UserHomePageNew = ({ onSignOut }) => {
                 <Button ref={cancelRef} onClick={() => setShowLogoutConfirm(false)}>
                   Cancel
                 </Button>
-                <Button colorScheme="red" onClick={handleLogout} ml={3}>
+                <Button colorScheme="red" onClick={confirmLogout} ml={3}>
                   Sign Out
                 </Button>
               </AlertDialogFooter>
