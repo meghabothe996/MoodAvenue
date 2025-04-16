@@ -9,6 +9,10 @@
   [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
   [![Chakra UI](https://img.shields.io/badge/Chakra_UI-319795?style=for-the-badge&logo=chakra-ui&logoColor=white)](https://chakra-ui.com/)
   [![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
+  
+  <p align="center">
+    <strong>🏆 Proudly developed for the Outlier Frontend UI Development Hackathon - April 2025 🏆</strong>
+  </p>
 
 </div>
 
@@ -148,6 +152,10 @@ The MoodAvenue journey continues with planned enhancements:
   
   ### 💖 Join the MoodAvenue revolution and redefine your social experience! 💖
   
-  [Website](https://example.com) · [Twitter](https://twitter.com) · [Instagram](https://instagram.com)
+  [Website](https://mood-avenue.vercel.app/) 
+  
+  <p>
+    <em>Created with ❤️ for the Outlier Frontend UI Development Hackathon (April 2025)</em>
+  </p>
   
 </div>
